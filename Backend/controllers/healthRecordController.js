@@ -5,7 +5,7 @@ import fs from 'fs';
 // Create a new health record
 export const createHealthRecord = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
+    // console.log("Request Body:", req.body);
 
     const { diagnosis, treatment, prescription, externalDoctorName, externalHospitalName } = req.body;
     const studentId = req.user.id;
@@ -26,11 +26,11 @@ export const createHealthRecord = async (req, res) => {
 
     let attachments = [];
     if (req.files && req.files.length > 0) {
-      console.log("Files received:", req.files);
+      // console.log("Files received:", req.files);
       const filePaths = req.files.map(file => file.path);
       const uploadResults = await uploadMultipleDocuments(filePaths);
-      console.log("Upload results:", uploadResults);
-    
+      // console.log("Upload results:", uploadResults);
+
       attachments = uploadResults.map(result => ({
         url: result.secure_url,
         publicId: result.public_id,
@@ -55,7 +55,7 @@ export const createHealthRecord = async (req, res) => {
       externalHospitalName,
       attachments, // Handle file uploads
     });
-    console.log("Attachments before saving:", attachments);
+    // console.log("Attachments before saving:", attachments);
 
     await newRecord.save();
     res.status(201).json({ message: "Health record created successfully", newRecord });
@@ -80,7 +80,7 @@ export const getHealthRecordById = async (req, res) => {
   try {
     const record = await HealthRecord.findById(req.params.id);
     if (!record) return res.status(404).json({ message: "Health record not found" });
-    
+
     if (record.studentId.toString() !== req.user.id.toString()) {
       return res.status(403).json({ message: "Access denied" });
     }
@@ -153,7 +153,7 @@ export const getHealthRecordsadmin = async (req, res) => {
         : record.doctorId?.name || "Unknown",
       hospitalName: record.isManualUpload ? record.externalHospitalName : null,
     }));
-    console.log("Formatted records:", formattedRecords);
+    // console.log("Formatted records:", formattedRecords);
     res.status(200).json(formattedRecords);
   } catch (error) {
     console.error("Error fetching health records:", error);
@@ -170,8 +170,8 @@ export const searchHealthRecords = async (req, res) => {
   try {
     const { query } = req.query;
     const studentId = req.user.id;
-    console.log("Search query:", query);
-    console.log("Student ID:", studentId);
+    // console.log("Search query:", query);
+    // console.log("Student ID:", studentId);
 
     const records = await HealthRecord.find({
       studentId,
@@ -184,7 +184,7 @@ export const searchHealthRecords = async (req, res) => {
       ],
     });
 
-    console.log("Records found:", records.length);
+    // console.log("Records found:", records.length);
     res.status(200).json(records);
   } catch (error) {
     console.error("Error searching health records:", error);

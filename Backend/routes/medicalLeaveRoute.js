@@ -12,7 +12,7 @@ router.post(
   upload.array('supportingDocuments', 5),  // This handles the file upload
   applyMedicalLeave  // This processes the form after files are handled
 );
-router.get("/", authMiddleware(["student"]), getAllLeaveApplications);
+router.get("/", authMiddleware(["student", "admin"]), getAllLeaveApplications);
 router.get("/status", authMiddleware(["student"]), getLeaveStatus);
 
 export default router;

@@ -2,7 +2,7 @@ import {
   Appointment,
   HealthRecord,
   MedicalLeave,
-  User,Notification
+  User, Notification
 } from "../models/index.js";
 import sendMail from "../utils/mailer.js";
 import { uploadDocument } from "../utils/cloudinary.js";
@@ -34,7 +34,7 @@ export const updateAppointmentStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status update." });
     }
 
-    const appointment = await Appointment.findById(id).populate("doctorId","name");
+    const appointment = await Appointment.findById(id).populate("doctorId", "name");
 
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found." });
@@ -44,7 +44,7 @@ export const updateAppointmentStatus = async (req, res) => {
     appointment.status = status;
     await appointment.save();
 
-    const { doctorId, slotDateTime,studentId} = appointment;
+    const { doctorId, slotDateTime, studentId } = appointment;
 
     // Handle slot booking status based on appointment status
     if (status === "confirmed") {
@@ -63,7 +63,7 @@ export const updateAppointmentStatus = async (req, res) => {
       );
 
       if (!updatedDoctor) {
-        console.log("Could not find matching slot for doctor when confirming");
+        // console.log("Could not find matching slot for doctor when confirming");
       }
     } else if (status === "cancelled") {
       // Mark slot as available again when appointment is cancelled
@@ -81,29 +81,29 @@ export const updateAppointmentStatus = async (req, res) => {
       );
 
       if (!updatedDoctor) {
-        console.log("Could not find matching slot for doctor when cancelling");
+        // console.log("Could not find matching slot for doctor when cancelling");
       }
     }
 
     //Saving in mongodb
     const notification = await Notification.create({
-      recipientId: studentId,  
+      recipientId: studentId,
       type: "appointment",
       message: `Your appointment has been ${status}`,
     });
-    
 
-     // 🔹 Integrate Socket.io
-     const io = req.app.get("socketio");
-     const onlineUsers = req.app.get("onlineUsers"); // ✅ Get the online users Map
- 
-     console.log("Appointment Object:", appointment);
-     
 
-     if (onlineUsers.has(studentId.toString())) {
+    // 🔹 Integrate Socket.io
+    const io = req.app.get("socketio");
+    const onlineUsers = req.app.get("onlineUsers"); // ✅ Get the online users Map
+
+    // console.log("Appointment Object:", appointment);
+
+
+    if (onlineUsers.has(studentId.toString())) {
       const patientSocket = onlineUsers.get(studentId.toString());
-      console.log(`✅ Sending update to patient ${studentId}`);
-      console.log("Patient Socket ID:", patientSocket?.id); // Log socket ID
+      // console.log(`✅ Sending update to patient ${studentId}`);
+      // console.log("Patient Socket ID:", patientSocket?.id); // Log socket ID
 
       //FOR DELAYED/PENDING
       // let notificationMessage = "";
@@ -118,7 +118,7 @@ export const updateAppointmentStatus = async (req, res) => {
       patientSocket.emit("appointmentUpdate", {
         message: notification.message,
         appointment: {
-          ...appointment.toObject(), 
+          ...appointment.toObject(),
           doctorName: appointment.doctorId.name, // Extract doctor’s name
         },
       });
@@ -126,7 +126,7 @@ export const updateAppointmentStatus = async (req, res) => {
         notification,
       });
     } else {
-      console.log(`Patient ${studentId} is offline. Cannot send update.`);
+      // console.log(`Patient ${studentId} is offline. Cannot send update.`);
     }
 
     //sending mail 
@@ -142,7 +142,7 @@ export const updateAppointmentStatus = async (req, res) => {
           <p>Your appointment has been <strong>${status}</strong>.</p>
         `;
 
-        console.log(`Sending email to student: ${studentDetails.email}`);
+        // console.log(`Sending email to student: ${studentDetails.email}`);
         await sendMail(
           studentDetails.email,
           mailSubject,
@@ -150,17 +150,17 @@ export const updateAppointmentStatus = async (req, res) => {
           mailHtml
         );
 
-        console.log("✅ Email sent to student:", studentDetails.email);
+        // console.log("✅ Email sent to student:", studentDetails.email);
       } else {
-        console.log("❌ Student email not found.");
+        // console.log("❌ Student email not found.");
       }
     } catch (emailError) {
-      console.error("❌ Error sending email to student:", emailError);
+      // console.error("❌ Error sending email to student:", emailError);
     }
 
     res.status(200).json({ message: `Appointment ${status} successfully.` });
   } catch (error) {
-    console.error("Error updating appointment status:", error);
+    // console.error("Error updating appointment status:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -177,7 +177,7 @@ export const getDoctorAppointments = async (req, res) => {
 
     // First, fetch the doctor information to get their name
     const doctor = await User.findById(doctorId, "name");
-    
+
     // Then fetch appointments and populate student info
     const appointments = await Appointment.find(filter).populate(
       "studentId",

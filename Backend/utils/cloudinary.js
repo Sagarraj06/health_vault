@@ -18,7 +18,7 @@ export const uploadDocument = async (file) => {
     });
     return uploadResponse;
   } catch (error) {
-    console.log("Document upload error:", error);
+    // console.log("Document upload error:", error);
     throw new Error(`Upload failed: ${error.message}`);
   }
 };
@@ -34,11 +34,11 @@ export const uploadMultipleDocuments = async (files) => {
     // Upload all files in parallel
     const uploadPromises = files.map(file => uploadDocument(file));
     const uploadResults = await Promise.all(uploadPromises);
-    
+
     // Return array of upload results
     return uploadResults;
   } catch (error) {
-    console.log("Error uploading multiple documents:", error);
+    // console.log("Error uploading multiple documents:", error);
     throw new Error(`Multiple upload failed: ${error.message}`);
   }
 };
@@ -47,7 +47,7 @@ export const deleteDocumentFromCloudinary = async (publicId) => {
   try {
     await cloudinary.uploader.destroy(publicId);
   } catch (error) {
-    console.log("Error deleting document:", error);
+    // console.log("Error deleting document:", error);
     throw new Error(`Delete failed: ${error.message}`);
   }
 };

@@ -17,8 +17,8 @@ const generateToken = (res, user) => {
 
 // User Signup
 export const signup = async (req, res) => {
-  console.log("Signup Controller Hit!");
-  console.log("Request Body:", req.body);
+  // console.log("Signup Controller Hit!");
+  // console.log("Request Body:", req.body);
   try {
     const {
       name,
@@ -54,8 +54,8 @@ export const signup = async (req, res) => {
 
 // User Login
 export const login = async (req, res) => {
-  console.log("login Controller Hit!");
-  console.log("Request Body:", req.body);
+  // console.log("login Controller Hit!");
+  // console.log("Request Body:", req.body);
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -64,7 +64,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token =generateToken(res, user);
+    const token = generateToken(res, user);
     return res.status(200).json({
       token,
       role: user.role,
