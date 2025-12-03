@@ -1,8 +1,33 @@
 {
-    "rewrites": [
-      { "source": "/api/:path*", "destination": "/Backend/api/:path*" }
-    ],
-    "buildCommand": "cd Frontend && npm run build",
-    "outputDirectory": "Frontend/build",
-    "installCommand": "cd Frontend && npm install && cd ../Backend && npm install"
-  }
+  "installCommand": "npm install --prefix Frontend && npm install --prefix Backend && pip install -r Backend/ai/requirements.txt",
+  "buildCommand": "npm run build --prefix Frontend",
+  "outputDirectory": "Frontend/dist",
+  "builds": [
+    {
+      "src": "Backend/app.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "Backend/ai/app.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "Frontend/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/Backend/app.js"
+    },
+    {
+      "src": "/ai/(.*)",
+      "dest": "/Backend/ai/app.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/Frontend/$1"
+    }
+  ]
+}

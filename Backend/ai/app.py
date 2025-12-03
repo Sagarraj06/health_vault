@@ -7,6 +7,7 @@ import os
 import jwt
 from functools import wraps
 from dotenv import load_dotenv
+from waitress import serve
 load_dotenv()
 
 # Initialize Flask app
@@ -17,13 +18,10 @@ CORS(app, supports_credentials=True)
 MONGO_URI = "mongodb+srv://mufaddaltopiwala15:xKN8RHGctkCiTX0U@arogya-vault.3bg8o.mongodb.net/arogya-vault"
 client = MongoClient(MONGO_URI)
 db = client["arogya-vault"]
-db = client["arogya-vault"]
-collection = db["healthrecords"]
-collection2=db["medicalleaves"]
+health_records_collection = db["healthrecords"]
+medical_leaves_collection = db["medicalleaves"]
 users_collection = db["users"]
 appointments_collection = db["appointments"]
-health_records_collection = db["healthrecords"]
-leave_collection = db["medicalleaves"]
 
 
 GEMINI_API_KEY = os.getenv("GEMINI_API")
@@ -37,7 +35,7 @@ if not JWT_SECRET:
 
 # Configure Gemini AI
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 # Helper function to fetch user names by ID
 def get_user_name(user_id):
@@ -49,25 +47,19 @@ def auth_middleware(roles=[]):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            print("---- Auth Middleware Debug ----")
-            print("All cookies:", request.cookies)
             token = request.cookies.get('jwt')
-            print("JWT cookie present:", token is not None)
             
             if not token:
                 # Also check Authorization header as fallback
                 auth_header = request.headers.get('Authorization')
                 if auth_header and auth_header.startswith('Bearer '):
                     token = auth_header.split(' ')[1]
-                    print("Using token from Authorization header")
                 else:
-                    print("No JWT token found in cookies or Authorization header")
                     return jsonify({"message": "Unauthorized"}), 401
                 
             try:
                 # Decode the JWT token - ensure proper options
                 decoded = jwt.decode(token, JWT_SECRET, algorithms=["HS256"], options={"require": ["exp"]})
-                print(f"JWT decoded successfully. User ID: {decoded.get('id')}, Role: {decoded.get('role')}")
 
                 # Store user in Flask's g object - note we're mapping 'id' to '_id'
                 g.user = {
@@ -77,68 +69,15 @@ def auth_middleware(roles=[]):
                 
                 # Check if user has required role
                 if roles and g.user.get('role') not in roles:
-                    print(f"Access denied. User role: {g.user.get('role')}, Required roles: {roles}")
                     return jsonify({"message": "Access Denied"}), 403
                     
                 return f(*args, **kwargs)
                 
             except jwt.ExpiredSignatureError:
-                print("Token expired")
                 return jsonify({"message": "Token expired"}), 401
             except jwt.InvalidTokenError as e:
-                print(f"Invalid token: {str(e)}")
                 return jsonify({"message": f"Invalid token: {str(e)}"}), 403
             except Exception as e:
-                print(f"Error: {str(e)}")
-                return jsonify({"message": f"Internal Server Error: {str(e)}"}), 500
-                
-        return decorated_function
-    return decorator
-
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            print("---- Auth Middleware Debug ----")
-            print("All cookies:", request.cookies)
-            token = request.cookies.get('jwt')
-            print("JWT cookie present:", token is not None)
-            
-            if not token:
-                # Also check Authorization header as fallback
-                auth_header = request.headers.get('Authorization')
-                if auth_header and auth_header.startswith('Bearer '):
-                    token = auth_header.split(' ')[1]
-                    print("Using token from Authorization header")
-                else:
-                    print("No JWT token found in cookies or Authorization header")
-                    return jsonify({"message": "Unauthorized"}), 401
-                
-            try:
-                # Decode the JWT token - matched to Express structure
-                decoded = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-                print(f"JWT decoded successfully. User ID: {decoded.get('id')}, Role: {decoded.get('role')}")
-                
-                # Store user in Flask's g object - note we're mapping 'id' to '_id'
-                g.user = {
-                    "_id": decoded.get('id'),  # Map 'id' from token to '_id' in g.user
-                    "role": decoded.get('role')
-                }
-                
-                # Check if user has required role
-                if roles and g.user.get('role') not in roles:
-                    print(f"Access denied. User role: {g.user.get('role')}, Required roles: {roles}")
-                    return jsonify({"message": "Access Denied"}), 403
-                    
-                return f(*args, **kwargs)
-                
-            except jwt.ExpiredSignatureError:
-                print("Token expired")
-                return jsonify({"message": "Token expired"}), 401
-            except jwt.InvalidTokenError as e:
-                print(f"Invalid token: {str(e)}")
-                return jsonify({"message": f"Invalid token: {str(e)}"}), 403
-            except Exception as e:
-                print(f"Error: {str(e)}")
                 return jsonify({"message": f"Internal Server Error: {str(e)}"}), 500
                 
         return decorated_function
@@ -224,45 +163,46 @@ def ask_question():
         print(f"Student name: {student_name}")
 
         # Fetch medical records
-        records = list(collection.find({"studentId": ObjectId(student_id)}))
+        records = list(health_records_collection.find({"studentId": ObjectId(student_id)}))
         print(f"Medical records found: {len(records)}")
 
         if not records:
-            return jsonify({"error": "No medical history found for this patient"}), 404
+            enriched_records_text = "No medical history found for this patient."
+        else:
+            enriched_records = []
+            for record in records:
+                doctor_name = "Unknown Doctor"
+                doctor_id = record.get("doctorId")
 
-        enriched_records = []
-        for record in records:
-            doctor_name = "Unknown Doctor"
-            doctor_id = record.get("doctorId")
-
-            if doctor_id:
-                try:
-                    doctor = users_collection.find_one({"_id": ObjectId(doctor_id)}, {"name": 1})
-                    if doctor and doctor.get("name"):
-                        doctor_name = doctor["name"]
-                    else:
-                        # Fallback: check for externalDoctorName
+                if doctor_id:
+                    try:
+                        doctor = users_collection.find_one({"_id": ObjectId(doctor_id)}, {"name": 1})
+                        if doctor and doctor.get("name"):
+                            doctor_name = doctor["name"]
+                        else:
+                            # Fallback: check for externalDoctorName
+                            external_name = record.get("externalDoctorName")
+                            if external_name:
+                                doctor_name = external_name
+                    except Exception as doc_error:
+                        print(f"Error fetching doctor by ID {doctor_id}: {doc_error}")
                         external_name = record.get("externalDoctorName")
                         if external_name:
                             doctor_name = external_name
-                except Exception as doc_error:
-                    print(f"Error fetching doctor by ID {doctor_id}: {doc_error}")
+                else:
+                    # No doctorId, check for external name
                     external_name = record.get("externalDoctorName")
                     if external_name:
                         doctor_name = external_name
-            else:
-                # No doctorId, check for external name
-                external_name = record.get("externalDoctorName")
-                if external_name:
-                    doctor_name = external_name
 
-            enriched_records.append({
-                "Date": str(record.get("createdAt", "Unknown")),
-                "Diagnosis": record.get("diagnosis", "Not specified"),
-                "Doctor": doctor_name,
-                "Treatment": record.get("treatment", "Not specified"),
-                "Prescription": record.get("prescription", "Not specified")
-            })
+                enriched_records.append({
+                    "Date": str(record.get("createdAt", "Unknown")),
+                    "Diagnosis": record.get("diagnosis", "Not specified"),
+                    "Doctor": doctor_name,
+                    "Treatment": record.get("treatment", "Not specified"),
+                    "Prescription": record.get("prescription", "Not specified")
+                })
+            enriched_records_text = str(enriched_records)
 
         # Secure Gemini AI prompt
         gemini_prompt = f"""
@@ -272,7 +212,7 @@ def ask_question():
         Patient: {student_name}
 
         Medical History:
-        {enriched_records}
+        {enriched_records_text}
 
         Answer the following question in a natural and professional manner:
         "{user_question}"
@@ -311,11 +251,9 @@ def leave_related_question():
             return jsonify({"error": "Question is required"}), 400
 
         # Fetch leave records - convert string ID to ObjectId
-        records = list(collection2.find({"studentId": ObjectId(student_id)}))
-        if not records:
-            return jsonify({"error": "No leave history found for this student"}), 404
-
-        formatted_records = convert_objectid(records)
+        records = list(medical_leaves_collection.find({"studentId": ObjectId(student_id)}))
+        
+        formatted_records = convert_objectid(records) if records else "No leave history found."
 
         # Prepare Gemini AI prompt
         gemini_prompt = f"""
@@ -424,81 +362,11 @@ def doctor_insights():
     except Exception as e:
         print(f"Doctor insights error: {str(e)}")
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
-    try:
-        data = request.json
-        user_question = data.get("question")
 
-        # Get doctor ID from the JWT token and convert to ObjectId
-        doctor_id = g.user.get('_id')
-        print(f"Using doctor ID from token: {doctor_id}")
-
-        if not user_question:
-            return jsonify({"error": "Question is required"}), 400
-
-        # Fetch doctor details including available slots
-        doctor = users_collection.find_one({"_id": ObjectId(doctor_id)}, {"name": 1, "availableSlots": 1})
-        if not doctor:
-            return jsonify({"error": "Doctor not found"}), 404
-        
-        doctor_name = doctor.get("name", "Unknown Doctor")
-        available_slots = doctor.get("availableSlots", [])
-
-        # Extract only non-booked slots
-        free_slots = [slot["dateTime"] for slot in available_slots if not slot.get("isBooked", True)]
-
-        # Fetch doctor's upcoming appointments
-        appointments = list(appointments_collection.find({"doctorId": ObjectId(doctor_id)}))
-        enriched_appointments = []
-        for appointment in appointments:
-            student_name = get_user_name(appointment["studentId"])
-            enriched_appointments.append({
-                "Patient": student_name,
-                "Date": appointment.get("date", "Unknown"),
-                "Time": appointment.get("timeSlot", "Unknown"),
-                "Status": appointment.get("status", "Unknown")
-            })
-
-        # Fetch health records of treated patients
-        health_records = list(health_records_collection.find({"doctorId": ObjectId(doctor_id)}))
-        enriched_health_records = []
-        for record in health_records:
-            student_name = get_user_name(record["studentId"])
-            enriched_health_records.append({
-                "Patient": student_name,
-                "Diagnosis": record.get("diagnosis", "Not specified"),
-                "Treatment": record.get("treatment", "Not specified"),
-                "Prescription": record.get("prescription", "Not specified"),
-                "Date": record.get("createdAt", "Unknown")
-            })
-
-        # AI Prompt (Ensuring Available Slots are Passed)
-        gemini_prompt = f"""
-        You are assisting Dr. {doctor_name} with patient records.
-
-        Available Appointment Slots:
-        {free_slots}
-
-        Your Upcoming Appointments:
-        {enriched_appointments}
-
-        Your Past Treatments:
-        {enriched_health_records}
-
-        Answer the following question:
-        "{user_question}"
-        """
-
-        response = model.generate_content(gemini_prompt)
-        final_answer = response.text if response and response.text else "I couldn't generate an answer."
-
-        return jsonify({"status": "success", "answer": final_answer})
-
-    except Exception as e:
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
   
 
 # Run Flask app
 if __name__ == "__main__":
-    app.run(host="localhost", port=5000, debug=True)
+    serve(app, host="0.0.0.0", port=5000)

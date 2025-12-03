@@ -1,0 +1,42 @@
+services:
+  # 1. Node.js Backend Service
+  - type: web
+    name: health-vault-backend
+    env: node
+    root: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: API_SECRET
+        sync: false
+      - key: CLOUD_NAME
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: GEMINI_API
+        sync: false
+
+  # 2. Python AI Service
+  - type: web
+    name: health-vault-ai
+    env: python
+    root: backend/ai
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: GEMINI_API
+        sync: false
+      - key: JWT_SECRET
+        sync: false

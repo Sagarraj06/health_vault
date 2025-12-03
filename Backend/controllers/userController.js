@@ -31,6 +31,28 @@ export const signup = async (req, res) => {
       specialization,
       availableSlots,
     } = req.body;
+
+    // 1. Basic Validation
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ message: "Please provide all required fields (name, email, password, role)." });
+    }
+
+    // 2. Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format." });
+    }
+
+    // 3. Password Strength
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long." });
+    }
+
+    // 4. Check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists with this email." });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({

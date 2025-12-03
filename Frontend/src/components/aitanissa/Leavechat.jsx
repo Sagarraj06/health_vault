@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { api } from '../../axios.config.js';
+import { api, ai_api } from '../../axios.config.js';
 
 const Leavechat = () => {
   const [question, setQuestion] = useState('');
@@ -15,7 +15,7 @@ const Leavechat = () => {
 
     try {
       // Make API call to the leave-related API
-      const res = await api.post('http://localhost:5000/leaverelated', {
+      const res = await ai_api.post('/leaverelated', {
         question: question,
       });
 

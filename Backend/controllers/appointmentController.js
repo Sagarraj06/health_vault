@@ -7,25 +7,49 @@ export const bookAppointment = async (req, res) => {
     const { doctorId, slotDateTime } = req.body;
     const studentId = req.user.id;
 
-    // Check if the doctor has an available slot at the requested time
-    const doctor = await User.findOne({
-      _id: doctorId,
-      "availableSlots.dateTime": slotDateTime,
-      "availableSlots.isBooked": false
-    });
-
-    if (!doctor) {
-      return res.status(400).json({ message: "Time slot is not available." });
+    // Validate slotDateTime is in the future
+    if (new Date(slotDateTime) < new Date()) {
+      return res.status(400).json({ message: "Cannot book appointments in the past." });
     }
 
-    // Check if the student is booking a valid time slot
+    // ATOMIC OPERATION: Try to find the doctor AND update the slot status in one go.
+    // This prevents race conditions where two users book the same slot simultaneously.
+    const updatedDoctor = await User.findOneAndUpdate(
+      {
+        _id: doctorId,
+        "availableSlots.dateTime": slotDateTime,
+        "availableSlots.isBooked": false // CRITICAL: Only match if currently unbooked
+      },
+      {
+        $set: {
+          "availableSlots.$.isBooked": true
+        }
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedDoctor) {
+      return res.status(400).json({ message: "Time slot is not available or already booked." });
+    }
+
+    // Check if the student already has an appointment at this time (optional, but good practice)
     const existingAppointment = await Appointment.findOne({
-      doctorId,
+      studentId,
       slotDateTime
     });
 
     if (existingAppointment) {
-      return res.status(400).json({ message: "Time slot already booked." });
+      // Rollback: If student already has an appointment, free the slot back up
+      await User.findOneAndUpdate(
+        {
+          _id: doctorId,
+          "availableSlots.dateTime": slotDateTime
+        },
+        {
+          $set: { "availableSlots.$.isBooked": false }
+        }
+      );
+      return res.status(400).json({ message: "You already have an appointment at this time." });
     }
 
     // Create the appointment
@@ -34,19 +58,6 @@ export const bookAppointment = async (req, res) => {
       doctorId,
       slotDateTime
     });
-
-    // Update the doctor's available slot to mark it as booked
-    await User.findOneAndUpdate(
-      {
-        _id: doctorId,
-        "availableSlots.dateTime": slotDateTime
-      },
-      {
-        $set: {
-          "availableSlots.$.isBooked": true
-        }
-      }
-    );
 
     await appointment.save();
 

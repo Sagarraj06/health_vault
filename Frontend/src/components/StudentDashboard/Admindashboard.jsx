@@ -10,7 +10,7 @@ import { showAlert } from '../alert-system';
 const AdminDashboard = () => {
   // Sample data for student leave applications
   const [leaveApplications, setLeaveApplications] = useState([]);
-
+  const [selectedStatus, setSelectedStatus] = useState('All Status'); // New state for filter
   const [selectedRecord, setSelectedRecord] = useState(null);
 
   // Sample data for health records
@@ -24,7 +24,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchHealthRecords = async () => {
       try {
-        const response = await api.get("/medical-leaves/healthrecord"); // Replace with your API endpoint
+        const response = await api.get("/medical-leaves/healthrecord"); // Corrected API endpoint
         console.log("API Response:", response.data);
 
         const formattedData = response.data.map(record => ({
@@ -196,7 +196,9 @@ const AdminDashboard = () => {
     }
   };
 
-
+  const handleStatusChange = (e) => {
+    setSelectedStatus(e.target.value);
+  };
 
 
   return (
@@ -323,11 +325,11 @@ const AdminDashboard = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Student Leave Applications</h2>
                 <div className="flex space-x-2">
-                  <select className="border rounded-lg px-3 py-2">
-                    <option>All Status</option>
-                    <option>Pending</option>
-                    <option>Approved</option>
-                    <option>Rejected</option>
+                  <select className="border rounded-lg px-3 py-2" value={selectedStatus} onChange={handleStatusChange}>
+                    <option value="All Status">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
                   </select>
                   <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
                     <UserPlus className="w-4 h-4 mr-2" /> New Application
@@ -350,6 +352,7 @@ const AdminDashboard = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {[...leaveApplications]
+                      .filter(app => selectedStatus === 'All Status' || app.status === selectedStatus)
                       .sort((a, b) => {
                         const aStart = new Date(a.duration.split(" to ")[0]);
                         const bStart = new Date(b.duration.split(" to ")[0]);

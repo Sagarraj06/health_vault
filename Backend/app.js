@@ -1,6 +1,6 @@
 import express from "express";
 import http from "http";
-import { Server } from "socket.io"; 
+import { Server } from "socket.io";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -12,14 +12,18 @@ import testRoutes from "./routes/testRoutes.js";
 
 
 const app = express();
-dotenv.config();  
+dotenv.config();
 connectDB();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5000"], // Correct syntax
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5000",
+      process.env.FRONTEND_URL // Allow production frontend
+    ].filter(Boolean), // Remove undefined/null values
     credentials: true,
   })
 );
@@ -31,14 +35,18 @@ app.use("/api/v1", Routes);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5000"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5000",
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
     credentials: true,
   },
 });
 
 
 // Store online users
-const onlineUsers = new Map();  
+const onlineUsers = new Map();
 app.set("onlineUsers", onlineUsers); // ✅ Store online users globally
 
 
@@ -73,24 +81,24 @@ io.on("connection", (socket) => {
   // Authenticate user with JWT when they connect
   socket.on("authenticate", (token) => {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);  
-      socket.userId = decoded.id;  
-      onlineUsers.set(socket.userId, socket); 
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      socket.userId = decoded.id;
+      onlineUsers.set(socket.userId, socket);
       console.log(`User authenticated: ${socket.userId}`);
     } catch (err) {
       console.log("Authentication failed");
       socket.emit("authError", { message: "Authentication failed, please reconnect." });
-      socket.disconnect(); 
+      socket.disconnect();
     }
   });
 
-  
+
   // Store the user ID when they connect
-  socket.on("setUserId",async (userId) => {
+  socket.on("setUserId", async (userId) => {
     onlineUsers.set(userId, socket);
     console.log(`User ${userId} is online.`);
   });
-  
+
 
   //listen for new appointment(doc gets)
   socket.on("newAppointment", (appointmentData) => {
@@ -106,7 +114,7 @@ io.on("connection", (socket) => {
       console.log(`Doctor ${appointmentData.doctorId} is offline.`);
     }
   });
-  
+
   // ✅ Listen for appointment updates (Patient should receive)
   socket.on("appointmentUpdate", (updateData) => {
     console.log("Appointment update received:", updateData);
@@ -120,7 +128,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  
+
   // When a user disconnects
   socket.on("disconnect", () => {
     if (socket.userId) {
@@ -130,11 +138,11 @@ io.on("connection", (socket) => {
   })
 });
 
-app.set("socketio",io);
+app.set("socketio", io);
 
 const PORT = process.env.PORT || 3053;
-server.listen(PORT, ()=>{
-    console.log(`Server is running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 

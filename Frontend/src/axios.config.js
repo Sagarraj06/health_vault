@@ -7,3 +7,8 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:3053/api/v1",
   withCredentials: true, // To send cookies along with requests
 });
+
+export const ai_api = axios.create({
+  baseURL: import.meta.env.VITE_AI_API_URL || "http://localhost:5000",
+  withCredentials: true,
+});

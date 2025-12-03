@@ -6,7 +6,7 @@ import { UserContext } from "../../context/UserContext";
 import { api } from "../../axios.config.js"; // Import Axios instance
 
 const Navbar = React.memo(() => {
-  const { isLoggedIn, user, logout } = useContext(UserContext);
+  const { isLoggedIn, user, logout, setUser } = useContext(UserContext);
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   console.log("User Data:", user);
@@ -48,7 +48,7 @@ const Navbar = React.memo(() => {
       logout(); // Update local state
       
       navigate("/"); // Navigate to home after logout
-      Setuser(null);
+      setUser(null);
     } catch (error) {
       console.error("Error logging out:", error);
     }
