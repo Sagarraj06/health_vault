@@ -1,0 +1,44 @@
+# Vercel Ignore File
+# Exclude everything locally that isn't needed for production
+
+# Node modules (installed fresh on server)
+node_modules
+Frontend/node_modules
+Backend/node_modules
+
+# Python
+Backend/ai/venv
+Backend/ai/__pycache__
+__pycache__
+*.pyc
+*.pyo
+
+# Logs and local debug files
+npm-debug.log
+yarn-error.log
+*.log
+
+# Git
+.git
+.gitignore
+
+# Environment files (secrets should be in Vercel UI)
+.env
+Backend/.env
+Frontend/.env
+Backend/ai/.env
+
+# Seed and Debug scripts (Not needed for production runtime)
+Backend/debug_*.js
+Backend/check_*.js
+Backend/seed_*.js
+Backend/test_connection.js
+Backend/db/migrate_timezone.sql
+
+# Local uploads (should use Cloudinary)
+Backend/uploads
+Frontend/dist
+
+# Editor
+.vscode
+.idea
