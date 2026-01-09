@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { ai_api } from '../../axios.config';
 
 export default function Voice() {
   const [mode, setMode] = useState('voice'); // 'voice' or 'manual'
@@ -18,7 +17,7 @@ export default function Voice() {
     setLoading(true);
     setStatus('Starting voice assistant…');
     try {
-      const response = await axios.get('http://localhost:5000/voice-command');
+      const response = await ai_api.get('/voice-command');
       setStatus(response.data.message || 'Session ended.');
     } catch (error) {
       setStatus('Error connecting to voice assistant.');
@@ -36,7 +35,7 @@ export default function Voice() {
     try {
       // In a real scenario you'd send the collected data as POST body or query params.
       // Your backend function would need to be modified to use these values.
-      const response = await axios.get('http://localhost:5000/book-appointment', {
+      const response = await ai_api.get('/book-appointment', {
         params: { doctor_name: doctorName, purpose, date, time },
       });
       setStatus(response.data.message || 'Appointment booked.');
@@ -52,16 +51,16 @@ export default function Voice() {
       case 1:
         return (
           <div>
-            <p className="text-green-800 mb-2">Enter the Doctor's Name:</p>
+            <p className="text-primary mb-2">Enter the Doctor's Name:</p>
             <input
               type="text"
               value={doctorName}
               onChange={(e) => setDoctorName(e.target.value)}
-              className="w-full p-2 border border-green-300 rounded"
+              className="w-full p-2 border border-white/20 rounded bg-surface text-white focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               onClick={() => doctorName && setStep(2)}
-              className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+              className="mt-4 px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded transition-colors"
             >
               Next
             </button>
@@ -70,23 +69,23 @@ export default function Voice() {
       case 2:
         return (
           <div>
-            <p className="text-green-800 mb-2">Enter the Purpose of Appointment:</p>
+            <p className="text-primary mb-2">Enter the Purpose of Appointment:</p>
             <input
               type="text"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
-              className="w-full p-2 border border-green-300 rounded"
+              className="w-full p-2 border border-white/20 rounded bg-surface text-white focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <div className="flex justify-between mt-4">
               <button
                 onClick={() => setStep(1)}
-                className="px-4 py-2 bg-green-400 hover:bg-green-500 text-white rounded"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded transition-colors"
               >
                 Back
               </button>
               <button
                 onClick={() => purpose && setStep(3)}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+                className="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded transition-colors"
               >
                 Next
               </button>
@@ -96,23 +95,23 @@ export default function Voice() {
       case 3:
         return (
           <div>
-            <p className="text-green-800 mb-2">Enter the Appointment Date (YYYY-MM-DD):</p>
+            <p className="text-primary mb-2">Enter the Appointment Date (YYYY-MM-DD):</p>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full p-2 border border-green-300 rounded"
+              className="w-full p-2 border border-white/20 rounded bg-surface text-white focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <div className="flex justify-between mt-4">
               <button
                 onClick={() => setStep(2)}
-                className="px-4 py-2 bg-green-400 hover:bg-green-500 text-white rounded"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded transition-colors"
               >
                 Back
               </button>
               <button
                 onClick={() => date && setStep(4)}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+                className="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded transition-colors"
               >
                 Next
               </button>
@@ -122,24 +121,24 @@ export default function Voice() {
       case 4:
         return (
           <div>
-            <p className="text-green-800 mb-2">Enter the Appointment Time (e.g., 02:30 PM):</p>
+            <p className="text-primary mb-2">Enter the Appointment Time (e.g., 02:30 PM):</p>
             <input
               type="text"
               value={time}
               onChange={(e) => setTime(e.target.value)}
               placeholder="e.g., 02:30 PM"
-              className="w-full p-2 border border-green-300 rounded"
+              className="w-full p-2 border border-white/20 rounded bg-surface text-white focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <div className="flex justify-between mt-4">
               <button
                 onClick={() => setStep(3)}
-                className="px-4 py-2 bg-green-400 hover:bg-green-500 text-white rounded"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded transition-colors"
               >
                 Back
               </button>
               <button
                 onClick={handleManualSubmit}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+                className="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded transition-colors"
                 disabled={loading}
               >
                 {loading ? 'Submitting...' : 'Submit Appointment'}
@@ -153,17 +152,17 @@ export default function Voice() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-green-700 mb-6">Health Mitra</h1>
+    <div className="min-h-screen bg-dark flex flex-col items-center justify-center p-6">
+      <h1 className="text-4xl font-bold text-primary mb-6">Health Mitra</h1>
 
       {/* Mode Toggle */}
-      <div className="mb-6">
+      <div className="mb-6 glass-card p-1 rounded-lg border border-white/10">
         <button
           onClick={() => {
             setMode('voice');
             setStatus('');
           }}
-          className={`px-4 py-2 rounded-l ${mode === 'voice' ? 'bg-green-600 text-white' : 'bg-green-200 text-green-800'}`}
+          className={`px-4 py-2 rounded-lg transition-all ${mode === 'voice' ? 'bg-primary text-white' : 'text-gray-400 hover:text-white'}`}
         >
           Voice Assistant
         </button>
@@ -173,7 +172,7 @@ export default function Voice() {
             setStatus('');
             setStep(1);
           }}
-          className={`px-4 py-2 rounded-r ${mode === 'manual' ? 'bg-green-600 text-white' : 'bg-green-200 text-green-800'}`}
+          className={`px-4 py-2 rounded-lg transition-all ${mode === 'manual' ? 'bg-primary text-white' : 'text-gray-400 hover:text-white'}`}
         >
           Manual Booking
         </button>
@@ -181,31 +180,30 @@ export default function Voice() {
 
       {mode === 'voice' ? (
         <div className="flex flex-col items-center">
-          <p className="text-green-800 mb-4 text-center max-w-md">
+          <p className="text-gray-300 mb-4 text-center max-w-md">
             Use your voice to interact with Health Mitra for booking appointments and applying for leave.
           </p>
           <button
             onClick={handleVoiceCommand}
             disabled={loading}
-            className={`px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ${
-              loading
-                ? 'bg-green-300 cursor-not-allowed'
-                : 'bg-green-600 hover:bg-green-700 text-white'
-            }`}
+            className={`px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ${loading
+              ? 'bg-gray-600 cursor-not-allowed text-gray-400'
+              : 'bg-primary hover:bg-primary/80 text-white hover:shadow-primary/50'
+              }`}
           >
             {loading ? 'Listening...' : 'Start Voice Assistant'}
           </button>
         </div>
       ) : (
-        <div className="w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-green-700 mb-4">Manual Booking</h2>
+        <div className="w-full max-w-md glass-card p-6 rounded-xl border border-white/10">
+          <h2 className="text-2xl font-semibold text-primary mb-4">Manual Booking</h2>
           {renderManualStep()}
         </div>
       )}
 
       {status && (
-        <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-4 w-full max-w-md text-center shadow-sm">
-          <p className="text-green-700 font-medium">{status}</p>
+        <div className="mt-6 bg-surface border border-white/10 rounded-xl p-4 w-full max-w-md text-center shadow-sm">
+          <p className="text-primary font-medium">{status}</p>
         </div>
       )}
     </div>

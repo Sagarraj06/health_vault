@@ -1,6 +1,6 @@
 // Certificates.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import { api } from '../../axios.config';
 
 const Certificates = () => {
   const [formData, setFormData] = useState({
@@ -14,9 +14,9 @@ const Certificates = () => {
 
   // Handle changes to the input fields
   const handleChange = (e) => {
-    setFormData({ 
+    setFormData({
       ...formData,
-      [e.target.name]: e.target.value 
+      [e.target.name]: e.target.value
     });
   };
 
@@ -26,7 +26,7 @@ const Certificates = () => {
     setError('');
     try {
       // Post the form data to the Express backend
-      const res = await axios.post('http://localhost:5173/generate', formData);
+      const res = await api.post('/generate', formData);
       setCertificate(res.data.certificate);
     } catch (err) {
       console.error(err);
@@ -38,7 +38,7 @@ const Certificates = () => {
   const handleDownload = async () => {
     try {
       // Request the PDF from the backend (certificate is sent in the body)
-      const response = await axios.post('http://localhost:5173/download', 
+      const response = await api.post('/download',
         { certificate },
         { responseType: 'blob' } // important for binary data
       );
@@ -64,43 +64,43 @@ const Certificates = () => {
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Patient Name:</label>
-          <input 
-            type="text" 
-            id="name" 
-            name="name" 
-            value={formData.name} 
-            onChange={handleChange} 
-            required 
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
           />
         </div>
         <div>
           <label htmlFor="age">Age:</label>
-          <input 
-            type="number" 
-            id="age" 
-            name="age" 
-            value={formData.age} 
-            onChange={handleChange} 
-            required 
+          <input
+            type="number"
+            id="age"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+            required
           />
         </div>
         <div>
           <label htmlFor="diagnosis">Diagnosis:</label>
-          <input 
-            type="text" 
-            id="diagnosis" 
-            name="diagnosis" 
-            value={formData.diagnosis} 
-            onChange={handleChange} 
-            required 
+          <input
+            type="text"
+            id="diagnosis"
+            name="diagnosis"
+            value={formData.diagnosis}
+            onChange={handleChange}
+            required
           />
         </div>
         <div>
           <label htmlFor="details">Additional Details:</label>
-          <textarea 
-            id="details" 
-            name="details" 
-            value={formData.details} 
+          <textarea
+            id="details"
+            name="details"
+            value={formData.details}
             onChange={handleChange}
           ></textarea>
         </div>

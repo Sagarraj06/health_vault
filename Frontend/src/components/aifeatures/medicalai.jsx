@@ -71,7 +71,7 @@ Medical question: ${userQuestion}
       console.error("API Error:", err.response?.data || err.message);
       setError(
         "Error fetching response: " +
-          (err.response?.data?.error?.message || err.message)
+        (err.response?.data?.error?.message || err.message)
       );
     } finally {
       setLoading(false);
@@ -91,21 +91,20 @@ Medical question: ${userQuestion}
   };
 
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col">
-      <header className="bg-green-600 text-white py-4 text-center font-bold text-2xl">
+    <div className="min-h-screen bg-dark flex flex-col">
+      <header className="bg-surface border-b border-white/10 text-primary py-4 text-center font-bold text-2xl">
         Medical AI Chatbot
       </header>
 
-      <div className="flex-grow p-4 overflow-y-auto">
+      <div className="flex-grow p-4 overflow-y-auto custom-scrollbar">
         {conversation.map((msg, index) => (
           <div
             key={index}
             className={`mb-4 ${msg.role === "user" ? "text-right" : "text-left"}`}
           >
             <div
-              className={`inline-block p-3 rounded-lg max-w-md ${
-                msg.role === "user" ? "bg-green-300" : "bg-green-100"
-              }`}
+              className={`inline-block p-3 rounded-lg max-w-md ${msg.role === "user" ? "bg-primary text-white" : "bg-surface text-gray-200 border border-white/10"
+                }`}
             >
               {msg.text}
             </div>
@@ -114,9 +113,9 @@ Medical question: ${userQuestion}
         <div ref={chatEndRef} />
       </div>
 
-      <div className="p-4 border-t border-green-200">
+      <div className="p-4 border-t border-white/10 bg-surface">
         {error && (
-          <div className="mb-2 p-2 bg-red-100 text-red-700 border border-red-400 rounded">
+          <div className="mb-2 p-2 bg-red-500/10 text-red-400 border border-red-500/50 rounded">
             {error}
           </div>
         )}
@@ -128,12 +127,12 @@ Medical question: ${userQuestion}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask a medical question..."
-            className="flex-grow p-3 border-2 border-green-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="flex-grow p-3 border border-white/20 rounded-l-lg bg-dark text-white focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-500"
           />
           <button
             onClick={handleSend}
             disabled={loading || !query.trim()}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 font-bold rounded-r-lg transition duration-300 ease-in-out disabled:bg-green-400"
+            className="bg-primary hover:bg-primary/80 text-white px-4 py-3 font-bold rounded-r-lg transition duration-300 ease-in-out disabled:bg-gray-600"
           >
             {loading ? "..." : "Send"}
           </button>
@@ -142,7 +141,7 @@ Medical question: ${userQuestion}
         <div className="mt-2 text-right">
           <button
             onClick={handleClear}
-            className="text-sm text-green-600 hover:underline"
+            className="text-sm text-primary hover:underline hover:text-primary/80"
           >
             Clear Chat
           </button>

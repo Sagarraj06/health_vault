@@ -1,6 +1,6 @@
 Flask
 flask-cors
-pymongo
+psycopg2-binary
 python-dotenv
 PyJWT
 google-generativeai
