@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 // Gemini API key and endpoint details
-const GEMINI_API_KEY = "AIzaSyAjQ11QPsCGxn8JnK9VjPV_CrrZ927BOAk";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API;
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`;
 
 export default function MedicalAIChat() {
