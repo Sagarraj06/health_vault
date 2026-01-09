@@ -118,12 +118,12 @@ const PrescriptionGenerator = () => {
         
         Rx:
         ${formData.medications
-          .map(
-            (med, idx) =>
-              `${idx + 1}. ${med.medicineName} - ${med.dose}
+            .map(
+              (med, idx) =>
+                `${idx + 1}. ${med.medicineName} - ${med.dose}
              Take ${med.frequency} for ${med.duration}`
-          )
-          .join("\n")}
+            )
+            .join("\n")}
         
         Instructions:
         - Take medications as prescribed
@@ -196,35 +196,34 @@ const PrescriptionGenerator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-green-50 p-4">
+    <div className="min-h-screen bg-transparent p-4 text-white">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-green-500 text-white p-4 rounded-t-lg">
+        <div className="bg-gradient-to-r from-primary to-secondary text-white p-4 rounded-t-lg shadow-lg">
           <h1 className="text-2xl font-bold text-center">
             HealthVault Prescription Generator
           </h1>
         </div>
 
         {/* Main content */}
-        <div className="bg-white shadow-md rounded-b-lg p-6">
+        <div className="glass-card rounded-b-lg p-6 border-t-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Input Form */}
-            <div className="bg-green-50 p-4 rounded-lg">
+            <div className="bg-white/5 p-4 rounded-lg border border-white/10">
               {/* Appointment Selection */}
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-lg font-semibold text-green-700">
+                  <h2 className="text-lg font-semibold text-primary">
                     Select Appointment
                   </h2>
                   <button
                     onClick={fetchAppointments}
                     disabled={loadingAppointments}
-                    className="text-green-600 hover:text-green-800 flex items-center text-sm"
+                    className="text-primary hover:text-accent flex items-center text-sm transition-colors"
                   >
                     <RefreshCw
-                      className={`w-3 h-3 mr-1 ${
-                        loadingAppointments ? "animate-spin" : ""
-                      }`}
+                      className={`w-3 h-3 mr-1 ${loadingAppointments ? "animate-spin" : ""
+                        }`}
                     />
                     Refresh
                   </button>
@@ -232,12 +231,12 @@ const PrescriptionGenerator = () => {
                 <select
                   value={selectedAppointment}
                   onChange={handleAppointmentSelect}
-                  className="block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200"
+                  className="block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2"
                   disabled={loadingAppointments}
                 >
-                  <option value="">-- Select an appointment --</option>
+                  <option value="" className="text-gray-800">-- Select an appointment --</option>
                   {appointments.map((app) => (
-                    <option key={app._id} value={app._id}>
+                    <option key={app._id} value={app._id} className="text-gray-800">
                       {app.studentId?.name} -{" "}
                       {new Date(app.slotDateTime).toLocaleDateString()}{" "}
                       {new Date(app.slotDateTime).toLocaleTimeString([], {
@@ -249,13 +248,13 @@ const PrescriptionGenerator = () => {
                 </select>
               </div>
 
-              <h2 className="text-lg font-semibold text-green-700 mb-4">
+              <h2 className="text-lg font-semibold text-primary mb-4">
                 Prescription Details
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-green-700">
+                  <label className="block text-sm font-medium text-gray-300">
                     Doctor's Name
                   </label>
                   <input
@@ -263,14 +262,14 @@ const PrescriptionGenerator = () => {
                     name="doctorName"
                     value={formData.doctorName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200"
+                    className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 placeholder-gray-500"
                     placeholder="Dr. Name"
                     readOnly={selectedAppointment !== ""}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-700">
+                  <label className="block text-sm font-medium text-gray-300">
                     Patient's Name
                   </label>
                   <input
@@ -278,14 +277,14 @@ const PrescriptionGenerator = () => {
                     name="patientName"
                     value={formData.patientName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200"
+                    className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 placeholder-gray-500"
                     placeholder="Patient Name"
                     readOnly={selectedAppointment !== ""}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-700">
+                  <label className="block text-sm font-medium text-gray-300">
                     Issue Date
                   </label>
                   <input
@@ -293,12 +292,12 @@ const PrescriptionGenerator = () => {
                     name="issueDate"
                     value={formData.issueDate}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200"
+                    className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-700">
+                  <label className="block text-sm font-medium text-gray-300">
                     Disease/Condition
                   </label>
                   <input
@@ -306,24 +305,24 @@ const PrescriptionGenerator = () => {
                     name="diseaseName"
                     value={formData.diseaseName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-green-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200"
+                    className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 placeholder-gray-500"
                     placeholder="Disease or condition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Medications
                   </label>
 
                   {formData.medications.map((med, index) => (
                     <div
                       key={index}
-                      className="p-3 bg-white rounded-md mb-3 shadow-sm"
+                      className="p-3 bg-white/5 rounded-md mb-3 shadow-sm border border-white/10"
                     >
                       <div className="grid grid-cols-2 gap-2 mb-2">
                         <div>
-                          <label className="block text-xs text-green-600">
+                          <label className="block text-xs text-gray-400">
                             Medicine Name
                           </label>
                           <input
@@ -336,12 +335,12 @@ const PrescriptionGenerator = () => {
                                 e.target.value
                               )
                             }
-                            className="mt-1 block w-full rounded-md border-green-200 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 text-sm"
+                            className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring-primary/20 text-sm p-2 placeholder-gray-500"
                             placeholder="Medicine name"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-green-600">
+                          <label className="block text-xs text-gray-400">
                             Dosage
                           </label>
                           <input
@@ -350,7 +349,7 @@ const PrescriptionGenerator = () => {
                             onChange={(e) =>
                               handleMedicationChange(index, "dose", e.target.value)
                             }
-                            className="mt-1 block w-full rounded-md border-green-200 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 text-sm"
+                            className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring-primary/20 text-sm p-2 placeholder-gray-500"
                             placeholder="e.g. 500mg"
                           />
                         </div>
@@ -358,7 +357,7 @@ const PrescriptionGenerator = () => {
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-xs text-green-600">
+                          <label className="block text-xs text-gray-400">
                             Frequency
                           </label>
                           <input
@@ -371,12 +370,12 @@ const PrescriptionGenerator = () => {
                                 e.target.value
                               )
                             }
-                            className="mt-1 block w-full rounded-md border-green-200 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 text-sm"
+                            className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring-primary/20 text-sm p-2 placeholder-gray-500"
                             placeholder="e.g. twice daily"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-green-600">
+                          <label className="block text-xs text-gray-400">
                             Duration
                           </label>
                           <input
@@ -389,7 +388,7 @@ const PrescriptionGenerator = () => {
                                 e.target.value
                               )
                             }
-                            className="mt-1 block w-full rounded-md border-green-200 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 text-sm"
+                            className="mt-1 block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring-primary/20 text-sm p-2 placeholder-gray-500"
                             placeholder="e.g. 7 days"
                           />
                         </div>
@@ -399,7 +398,7 @@ const PrescriptionGenerator = () => {
                         <button
                           type="button"
                           onClick={() => removeMedication(index)}
-                          className="mt-2 text-xs text-red-600 hover:text-red-800"
+                          className="mt-2 text-xs text-red-400 hover:text-red-300 transition-colors"
                         >
                           Remove
                         </button>
@@ -410,7 +409,7 @@ const PrescriptionGenerator = () => {
                   <button
                     type="button"
                     onClick={addMedication}
-                    className="text-green-600 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md text-sm flex items-center"
+                    className="text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1 rounded-md text-sm flex items-center transition-colors w-full justify-center"
                   >
                     <Plus className="w-3 h-3 mr-1" />
                     Add Medication
@@ -421,7 +420,7 @@ const PrescriptionGenerator = () => {
                   type="button"
                   onClick={generatePrescription}
                   disabled={isLoading}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md shadow-sm flex items-center justify-center"
+                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white font-medium py-2 px-4 rounded-md shadow-lg flex items-center justify-center transition-all duration-300"
                 >
                   {isLoading ? (
                     <>
@@ -458,29 +457,29 @@ const PrescriptionGenerator = () => {
             </div>
 
             {/* Output Preview */}
-            <div className="bg-white p-4 border border-green-200 rounded-lg h-full">
+            <div className="bg-white/5 p-4 border border-white/10 rounded-lg h-full">
               <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-green-700">
+                <h2 className="text-lg font-semibold text-primary">
                   Prescription Preview
                 </h2>
                 {generatedPrescription && (
                   <button
                     onClick={uploadPDFAndSendToBackend}
-                    className="bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1 rounded-md text-sm flex items-center mt-2 sm:mt-0"
+                    className="bg-primary/20 text-primary hover:bg-primary/30 px-3 py-1 rounded-md text-sm flex items-center mt-2 sm:mt-0 transition-colors"
                   >
                     <FileText className="w-4 h-4 mr-1" />
-                    Upload &amp; Save Prescription
+                    Upload &amp; Save
                   </button>
                 )}
               </div>
 
               {generatedPrescription ? (
-                <div className="whitespace-pre-line font-mono text-sm border-l-4 border-green-500 pl-4">
+                <div className="whitespace-pre-line font-mono text-sm border-l-4 border-primary pl-4 text-gray-300 bg-black/20 p-4 rounded-r-md">
                   {generatedPrescription}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-                  <FileText className="w-12 h-12 mb-2" />
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                  <FileText className="w-12 h-12 mb-2 opacity-50" />
                   <p>Fill in the form and generate a prescription</p>
                 </div>
               )}

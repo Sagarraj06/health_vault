@@ -1,38 +1,42 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaCalendarCheck, FaVideo, FaMapMarkedAlt, FaRobot, FaStethoscope } from 'react-icons/fa';
 
 const MedicalServices = () => {
   const navigate = useNavigate();
-  
+
   const services = [
-    { title: 'Appointment Booking', buttonText: 'Appointment Booking', route: '/appointment' },
-    { title: 'Telemedicine Support', buttonText: 'Telemedicine Support', route: '/telemedicine' },
-    { title: 'Video Calling Feature', buttonText: 'Video Calling Feature', route: '/video-call' },
-    { title: 'Medical Centers On Maps', buttonText: 'Medical Centers On Maps', route: '/medical-centers' },
-    { title: 'AI-Diagnosis', buttonText: 'AI-Diagnosis', route: '/ai-diagnosis' },
+    { title: 'Appointment Booking', icon: <FaCalendarCheck />, route: '/appointment', color: 'text-primary' },
+    { title: 'Telemedicine Support', icon: <FaStethoscope />, route: '/telemedicine', color: 'text-secondary' },
+    { title: 'Video Consultation', icon: <FaVideo />, route: '/video-call', color: 'text-accent' },
+    { title: 'Medical Centers', icon: <FaMapMarkedAlt />, route: '/medical-centers', color: 'text-green-400' },
+    { title: 'AI Diagnosis', icon: <FaRobot />, route: '/ai-diagnosis', color: 'text-purple-400' },
   ];
-  
+
   return (
-    <div className="bg-gray-50 py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-8">
+    <div className="py-16 px-4 sm:px-6 md:px-8 relative">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-medium text-gray-900 mb-6 text-center">Our Services</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
+        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+          Our <span className="text-gradient">Services</span>
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {services.map((service, index) => (
             <div
               key={index}
-              className="flex flex-col items-center p-4 sm:p-5 md:p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out w-full"
+              className="glass-card p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300 group cursor-pointer"
+              onClick={() => navigate(service.route)}
             >
-              <div className="rounded-full bg-green-100 p-3 text-green-600 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center">
-                <span className="text-lg sm:text-xl font-bold">{service.title.charAt(0)}</span>
+              <div className={`w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-3xl mb-4 group-hover:animate-bounce ${service.color}`}>
+                {service.icon}
               </div>
-              <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm md:text-base font-medium text-gray-900 text-center">
+
+              <h3 className="text-lg font-semibold text-white mb-4 group-hover:text-primary transition-colors">
                 {service.title}
               </h3>
-              <button
-                onClick={() => navigate(service.route)}
-                className="mt-3 sm:mt-4 bg-green-300 text-green-900 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold hover:bg-green-400 w-full"
-              >
-                {service.buttonText}
+
+              <button className="mt-auto px-4 py-2 rounded-full border border-white/20 text-sm text-gray-300 group-hover:bg-primary group-hover:border-primary group-hover:text-dark font-bold transition-all">
+                Explore
               </button>
             </div>
           ))}

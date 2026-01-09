@@ -10,8 +10,8 @@ const DoctorTimeSlotSelector = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const timeSlotOptions = [
-    '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', 
-    '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', 
+    '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM',
+    '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM',
     '04:00 PM', '05:00 PM', '06:00 PM'
   ];
 
@@ -117,9 +117,9 @@ const DoctorTimeSlotSelector = () => {
       setTimeSlots({});
     } catch (error) {
       console.error('Error updating slots:', error);
-      setMessage({ 
-        text: error.response?.data?.message || 'Failed to update time slots', 
-        type: 'error' 
+      setMessage({
+        text: error.response?.data?.message || 'Failed to update time slots',
+        type: 'error'
       });
     } finally {
       setLoading(false);
@@ -127,18 +127,18 @@ const DoctorTimeSlotSelector = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-24 p-4 bg-white rounded-lg shadow relative">
+    <div className="w-full max-w-4xl mx-auto mt-24 p-4 md:p-8 glass-card animate-fade-in">
       {showSuccessPopup && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md animate-fade-in">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/70 p-4">
+          <div className="glass-card p-6 w-full max-w-md animate-fade-in">
             <div className="flex flex-col items-center">
-              <CheckCircle className="text-green-500 w-16 h-16 mb-4" />
-              <h3 className="text-xl font-bold text-green-800 mb-2">Success!</h3>
-              <p className="text-green-700 text-center mb-4">
+              <CheckCircle className="text-primary w-16 h-16 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
+              <p className="text-gray-300 text-center mb-4">
                 Your time slots have been added successfully.
               </p>
-              <button 
-                className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700" 
+              <button
+                className="btn-animated bg-gradient-to-r from-primary to-secondary text-white py-2 px-6 rounded-lg"
                 onClick={() => setShowSuccessPopup(false)}
               >
                 Close
@@ -147,46 +147,46 @@ const DoctorTimeSlotSelector = () => {
           </div>
         </div>
       )}
-      
+
       <div className="flex items-center mb-6">
-        <Calendar className="mr-2 text-green-600" />
-        <h2 className="text-2xl font-bold text-green-800">Add Available Time Slots</h2>
+        <Calendar className="mr-2 text-primary" />
+        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Add Available Time Slots</h2>
       </div>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
-          <label className="block text-green-700 mb-2 font-medium">Select Date</label>
+          <label className="block text-gray-300 mb-2 font-medium">Select Date</label>
           <div className="flex space-x-2">
-            <input 
+            <input
               id="dateInput"
-              type="date" 
-              className="w-full p-2 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              type="date"
+              className="w-full p-3 border border-white/20 rounded-lg bg-surface/50 text-white focus:outline-none focus:border-primary transition-all duration-300"
               onKeyDown={(e) => e.key === 'Enter' && handleAddDate()}
               min={new Date().toISOString().split('T')[0]}
             />
             <button
               type="button"
-              className="bg-green-600 text-white px-4 py-2 rounded-lg"
+              className="btn-animated bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg whitespace-nowrap"
               onClick={handleAddDate}
             >
               Add Date
             </button>
           </div>
         </div>
-        
+
         {selectedDates.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-lg font-medium text-green-700 mb-2">Selected Dates</h3>
+            <h3 className="text-lg font-medium text-gray-300 mb-2">Selected Dates</h3>
             <div className="space-y-4">
               {selectedDates.map(date => (
-                <div key={date} className="border border-green-200 rounded-lg p-4 bg-green-50">
+                <div key={date} className="border border-white/10 rounded-lg p-4 bg-surface/30">
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-md font-medium text-green-800">
+                    <h4 className="text-md font-medium text-white">
                       {new Date(date).toLocaleDateString()}
                     </h4>
-                    <button 
-                      type="button" 
-                      className="text-red-500 hover:text-red-700" 
+                    <button
+                      type="button"
+                      className="text-red-400 hover:text-red-300 transition-colors"
                       onClick={() => handleRemoveDate(date)}
                     >
                       Remove
@@ -197,11 +197,10 @@ const DoctorTimeSlotSelector = () => {
                       <button
                         key={`${date}-${slot}`}
                         type="button"
-                        className={`py-2 px-3 rounded-md text-sm transition-all ease-in-out duration-200 ${
-                          timeSlots[date]?.includes(slot)
-                            ? 'bg-green-600 text-white'
-                            : 'bg-white text-green-700 border border-green-300 hover:bg-green-100'
-                        }`}
+                        className={`py-2 px-3 rounded-lg text-sm transition-all duration-200 ${timeSlots[date]?.includes(slot)
+                            ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                            : 'bg-surface/50 text-gray-300 border border-white/20 hover:bg-white/5 hover:border-primary'
+                          }`}
                         onClick={() => toggleTimeSlot(date, slot)}
                       >
                         {slot}
@@ -213,17 +212,17 @@ const DoctorTimeSlotSelector = () => {
             </div>
           </div>
         )}
-        
+
         {message.text && message.type === 'error' && (
-          <div className="p-3 rounded mb-4 bg-red-100 text-red-700 border border-red-300">
+          <div className="p-4 rounded-lg mb-4 bg-red-500/20 text-red-400 border border-red-500/50">
             {message.text}
           </div>
         )}
-        
+
         <div className="flex justify-end">
-          <button 
-            type="submit" 
-            className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+          <button
+            type="submit"
+            className="btn-animated bg-gradient-to-r from-primary to-secondary text-white py-3 px-8 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading || selectedDates.length === 0}
           >
             {loading ? 'Saving...' : 'Save Time Slots'}

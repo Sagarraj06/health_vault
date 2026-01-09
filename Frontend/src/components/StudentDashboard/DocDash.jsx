@@ -32,6 +32,7 @@ import {
 import { api } from "../../axios.config.js";
 import { useNavigate } from "react-router-dom";
 import Notibell from "../Noti/Notibell.jsx";
+import Sidebar from "../Sidebar";
 
 const DocDash = () => {
   // Sample data for student certificates
@@ -90,40 +91,59 @@ const DocDash = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
+  const [stats, setStats] = useState({
+    todayAppointments: 0,
+    pendingCertificates: 0,
+    activeCases: 0,
+    videoConsultations: 0,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await api.get('/doctor/stats');
+        setStats(res.data);
+      } catch (error) {
+        console.error("Error fetching doctor stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
   useEffect(() => {
     const handleNewAppointment = (data) => {
-      
+
       const app = data.appointment;
-  
+
       const newApp = {
-          id: app._id,
-          patientName: app.studentId?.name || "Unknown",
-          studentId: app.studentId?._id || "N/A",
-          studentEmail: app.studentId?.email || "N/A",
-          appointmentDate: new Date(app.slotDateTime).toLocaleDateString(),
-          timeFrom: new Date(app.slotDateTime).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          timeTo: calculateEndTime(app.slotDateTime, app.duration || 30),
-          reason: app.reason || "General Checkup",
-          status: app.status.charAt(0).toUpperCase() + app.status.slice(1),
-          rawData: app,
-        
+        id: app._id,
+        patientName: app.studentId?.name || "Unknown",
+        studentId: app.studentId?._id || "N/A",
+        studentEmail: app.studentId?.email || "N/A",
+        appointmentDate: new Date(app.slotDateTime).toLocaleDateString(),
+        timeFrom: new Date(app.slotDateTime).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        timeTo: calculateEndTime(app.slotDateTime, app.duration || 30),
+        reason: app.reason || "General Checkup",
+        status: app.status.charAt(0).toUpperCase() + app.status.slice(1),
+        rawData: app,
+
       };
-  
+
       // Prepend the new appointment to the current list
       setAppointments((prevAppointments) => [newApp, ...prevAppointments]);
     };
-  
+
     socket.on("newAppointment", handleNewAppointment);
-  
+
     // Cleanup on unmount
     return () => {
       socket.off("newAppointment", handleNewAppointment);
     };
   }, []);
-  
+
   // Sample data for prescriptions
   const [prescriptions] = useState([
     {
@@ -272,9 +292,9 @@ const DocDash = () => {
         prevAppointments.map((app) =>
           app.id === appointmentId
             ? {
-                ...app,
-                status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1),
-              }
+              ...app,
+              status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1),
+            }
             : app
         )
       );
@@ -326,91 +346,28 @@ const DocDash = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-transparent text-white relative">
+
       {/* Sidebar */}
-      <div className="w-64 bg-white p-4 border-r">
-        <h2 className="text-xl font-bold text-blue-600 mb-6">
-          Doctor's Dashboard
-        </h2>
-        <nav className="space-y-2">
-          <Link
-            to="/dashboard"
-            className="flex items-center px-4 py-2 text-gray-600 bg-blue-50 text-blue-600 rounded"
-          >
-            <Activity className="w-5 h-5 mr-2" />
-            <span className="text-lg font-medium">Dashboard</span>
-          </Link>
-          {[
-            { name: "Appointments", icon: Calendar },
-            { name: "Prescriptions", icon: FileText },
-            { name: "Video-Call", icon: Video },
-            { name: "AI-Assistant", icon: Bot },
-          ].map((item) => (
-            <Link
-              key={item.name}
-              to={`/${item.name.toLowerCase().replace(" ", "-")}`}
-              className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
-            >
-              <item.icon className="w-5 h-5 mr-2" />
-              <span className="text-lg font-medium">{item.name}</span>
-            </Link>
-          ))}
-          <div className="mt-2 p-4 bg-white-50 rounded-lg">
-            <button
-              onClick={() => navigate("/slots")}
-              className="px-6 py-3 text-lg font-semibold text-white bg-green-500 rounded-lg transition-all duration-300 ease-in-out hover:bg-green-600 hover:shadow-lg"
-            >
-              Update Time Slot
-            </button>
-          </div>
-        </nav>
-
-        {/* AI Bot Section */}
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-semibold text-blue-700 flex items-center">
-            <Bot className="w-5 h-5 mr-2" /> AI Assistant
-          </h3>
-          <p className="text-sm text-gray-600 mt-2">
-            Get quick assistance with diagnoses, medical references, and patient
-            recommendations.
-          </p>
-          <button className="mt-3 w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center">
-            <MessageSquare className="w-4 h-4 mr-2" /> Start Conversation
-          </button>
-        </div>
-
-        {/* Video Call Section */}
-        <div className="mt-4 p-4 bg-green-50 rounded-lg">
-          <h3 className="font-semibold text-green-700 flex items-center">
-            <Video className="w-5 h-5 mr-2" /> Upcoming Video Call
-          </h3>
-          <div className="mt-2 text-sm">
-            <p className="font-medium">Emma Johnson</p>
-            <p className="text-gray-600">Today, 4:00 PM - 4:30 PM</p>
-            <button className="mt-2 w-full bg-green-600 text-white px-4 py-2 rounded-lg text-sm">
-              Join Call
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Sidebar */}
+      <Sidebar role="doctor" />
 
       {/* Main Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Doctor's Dashboard</h1>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Doctor's Dashboard</h1>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
               <input
                 type="text"
                 placeholder="Search patients..."
-                className="pl-10 pr-4 py-2 border rounded-lg"
+                className="pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all duration-300 focus:w-64 w-48"
               />
             </div>
-            <Notibell className="w-6 h-6 text-gray-400 cursor-pointer" />
-            <Settings className="w-6 h-6 text-gray-400 cursor-pointer" />
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+            <Settings className="w-6 h-6 text-gray-400 cursor-pointer hover:text-primary transition-colors hover:rotate-90 duration-500" />
+            <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold shadow-lg">
               D
             </div>
           </div>
@@ -421,85 +378,82 @@ const DocDash = () => {
           {[
             {
               title: "Today's Appointments",
-              value: "8",
-              color: "bg-blue-600",
+              value: stats.todayAppointments,
+              color: "bg-gradient-to-r from-blue-600 to-cyan-500",
               icon: Calendar,
             },
             {
               title: "Pending Certificates",
-              value: "14",
-              color: "bg-yellow-500",
+              value: stats.pendingCertificates,
+              color: "bg-gradient-to-r from-amber-500 to-yellow-400",
               icon: FileCheck,
             },
             {
               title: "Active Cases",
-              value: "12",
-              color: "bg-green-600",
+              value: stats.activeCases,
+              color: "bg-gradient-to-r from-emerald-500 to-lime-500",
               icon: Activity,
             },
             {
               title: "Video Consultations",
-              value: "5",
-              color: "bg-purple-600",
+              value: stats.videoConsultations,
+              color: "bg-gradient-to-r from-violet-600 to-fuchsia-500",
               icon: Video,
             },
           ].map((item, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
+              className="glass-card p-6 hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group"
             >
-              <div className="flex justify-between items-center mb-4">
-                <div className={`${item.color} p-3 rounded-lg`}>
+              <div className={`absolute top-0 right-0 w-20 h-20 ${item.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-150 duration-500`}></div>
+              <div className="flex justify-between items-center mb-4 relative z-10">
+                <div className={`${item.color} p-3 rounded-lg shadow-lg`}>
                   <item.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-gray-500 text-sm">Today</span>
+                <span className="text-gray-400 text-sm bg-white/5 px-2 py-1 rounded">Today</span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">{item.value}</h2>
-              <p className="text-gray-600">{item.title}</p>
+              <h2 className="text-2xl font-bold text-white relative z-10">{item.value}</h2>
+              <p className="text-gray-300 relative z-10">{item.title}</p>
             </div>
           ))}
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 border-b">
+        <div className="mb-6 border-b border-white/10">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab("certificate")}
-              className={`pb-4 px-1 ${
-                activeTab === "certificate"
-                  ? "border-b-2 border-blue-600 text-blue-600 font-semibold"
-                  : "text-gray-500"
-              }`}
+              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "certificate"
+                ? "border-b-2 border-primary text-primary font-semibold"
+                : "text-gray-500 hover:text-gray-300"
+                }`}
             >
               Certificate Verification
             </button>
             <button
               onClick={() => setActiveTab("appointment")}
-              className={`pb-4 px-1 ${
-                activeTab === "appointment"
-                  ? "border-b-2 border-blue-600 text-blue-600 font-semibold"
-                  : "text-gray-500"
-              }`}
+              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "appointment"
+                ? "border-b-2 border-primary text-primary font-semibold"
+                : "text-gray-500 hover:text-gray-300"
+                }`}
             >
               Appointment Approval
             </button>
             <button
               onClick={() => setActiveTab("prescription")}
-              className={`pb-4 px-1 ${
-                activeTab === "prescription"
-                  ? "border-b-2 border-blue-600 text-blue-600 font-semibold"
-                  : "text-gray-500"
-              }`}
+              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "prescription"
+                ? "border-b-2 border-primary text-primary font-semibold"
+                : "text-gray-500 hover:text-gray-300"
+                }`}
             >
               Prescription Verification
             </button>
             <button
               onClick={() => setActiveTab("video")}
-              className={`pb-4 px-1 ${
-                activeTab === "video"
-                  ? "border-b-2 border-blue-600 text-blue-600 font-semibold"
-                  : "text-gray-500"
-              }`}
+              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "video"
+                ? "border-b-2 border-primary text-primary font-semibold"
+                : "text-gray-500 hover:text-gray-300"
+                }`}
             >
               Video Consultations
             </button>
@@ -507,18 +461,18 @@ const DocDash = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-xl border p-6">
+        <div className="glass-card p-6 animate-fade-in">
           {/* Certificate Verification Tab */}
 
           {activeTab === "appointment" && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-green-800">
+                <h2 className="text-xl font-semibold text-green-400">
                   Appointment Requests
                 </h2>
                 <div className="flex space-x-2">
                   <select
-                    className="border border-green-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                   >
@@ -530,7 +484,7 @@ const DocDash = () => {
                   </select>
                   <input
                     type="date"
-                    className="border border-green-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
                   />
@@ -546,83 +500,82 @@ const DocDash = () => {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-green-50">
+                  <table className="min-w-full divide-y divide-white/10">
+                    <thead className="bg-white/5">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           ID
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           Patient Name
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           Student ID
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           Date
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           From
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           To
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           Reason
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           Status
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-transparent divide-y divide-white/10">
                       {appointments.length === 0 ? (
                         <tr>
                           <td
                             colSpan="9"
-                            className="px-6 py-4 text-center text-gray-500"
+                            className="px-6 py-4 text-center text-gray-400"
                           >
                             No appointments found
                           </td>
                         </tr>
                       ) : (
                         appointments.map((app) => (
-                          <tr key={app.id} className="hover:bg-green-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {app.id.substring(0, 6)}...
+                          <tr key={app.id} className="hover:bg-white/5">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                              {String(app.id).substring(0, 6)}...
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                               {app.patientName}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                               {app.studentId}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                               {app.appointmentDate}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                               {app.timeFrom}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                               {app.timeTo}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                               {app.reason}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                  app.status === "Confirmed"
-                                    ? "bg-green-100 text-green-800"
-                                    : app.status === "Cancelled"
+                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${app.status === "Confirmed"
+                                  ? "bg-green-100 text-green-800"
+                                  : app.status === "Cancelled"
                                     ? "bg-red-100 text-red-800"
                                     : app.status === "Delayed"
-                                    ? "bg-orange-100 text-orange-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                                }`}
+                                      ? "bg-orange-100 text-orange-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}
                               >
                                 {app.status}
                               </span>
@@ -692,7 +645,7 @@ const DocDash = () => {
                   Student Certificate Verification
                 </h2>
                 <div className="flex space-x-2">
-                  <select className="border rounded-lg px-3 py-2">
+                  <select className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:border-primary transition-all">
                     <option>All Status</option>
                     <option>Pending</option>
                     <option>Approved</option>
@@ -701,91 +654,90 @@ const DocDash = () => {
                   <input
                     type="text"
                     placeholder="Search by ID"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-white/10">
+                  <thead className="bg-white/5">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Student Name
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Student ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Certificate Type
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Issue Date
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Expiry Date
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Document
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-transparent divide-y divide-white/10">
                     {certificates.map((cert) => (
-                      <tr key={cert.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={cert.id} className="hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                           {cert.id}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {cert.studentName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {cert.studentId}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {cert.certificateType}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {cert.issueDate}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {cert.expiryDate}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 underline cursor-pointer">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-primary underline cursor-pointer hover:text-accent transition-colors">
                           {cert.documentLink}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              cert.status === "Approved"
-                                ? "bg-green-100 text-green-800"
-                                : cert.status === "Rejected"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cert.status === "Approved"
+                              ? "bg-green-500/20 text-green-400"
+                              : cert.status === "Rejected"
+                                ? "bg-red-500/20 text-red-400"
+                                : "bg-yellow-500/20 text-yellow-400"
+                              }`}
                           >
                             {cert.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <div className="flex space-x-2">
-                            <button className="flex items-center text-blue-600 hover:text-blue-900">
+                            <button className="flex items-center text-primary hover:text-accent transition-colors">
                               <Eye className="w-4 h-4 mr-1" /> View
                             </button>
                             {cert.status === "Pending" && (
                               <>
-                                <button className="flex items-center text-green-600 hover:text-green-900">
+                                <button className="flex items-center text-green-400 hover:text-green-300 transition-colors">
                                   <Check className="w-4 h-4 mr-1" /> Approve
                                 </button>
-                                <button className="flex items-center text-red-600 hover:text-red-900">
+                                <button className="flex items-center text-red-400 hover:text-red-300 transition-colors">
                                   <X className="w-4 h-4 mr-1" /> Reject
                                 </button>
                               </>
@@ -810,7 +762,7 @@ const DocDash = () => {
                   Student Prescription Verification
                 </h2>
                 <div className="flex space-x-2">
-                  <select className="border rounded-lg px-3 py-2">
+                  <select className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:border-primary transition-all">
                     <option>All Status</option>
                     <option>Pending</option>
                     <option>Approved</option>
@@ -819,91 +771,90 @@ const DocDash = () => {
                   <input
                     type="text"
                     placeholder="Search medication"
-                    className="border rounded-lg px-3 py-2"
+                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-white/10">
+                  <thead className="bg-gradient-to-r from-primary/10 to-transparent">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Student Name
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Student ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Medication
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Dosage
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Issued Date
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Notes
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-transparent divide-y divide-white/10">
                     {prescriptions.map((presc) => (
-                      <tr key={presc.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={presc.id} className="hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                           {presc.id}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {presc.studentName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {presc.studentId}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {presc.medication}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {presc.dosage}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {presc.issuedDate}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                        <td className="px-6 py-4 text-sm text-gray-300 max-w-xs truncate">
                           {presc.notes}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              presc.status === "Approved"
-                                ? "bg-green-100 text-green-800"
-                                : presc.status === "Rejected"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${presc.status === "Approved"
+                              ? "bg-green-500/20 text-green-400"
+                              : presc.status === "Rejected"
+                                ? "bg-red-500/20 text-red-400"
+                                : "bg-yellow-500/20 text-yellow-400"
+                              }`}
                           >
                             {presc.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <div className="flex space-x-2">
-                            <button className="flex items-center text-blue-600 hover:text-blue-900">
+                            <button className="flex items-center text-primary hover:text-accent transition-colors">
                               <Eye className="w-4 h-4 mr-1" /> View
                             </button>
                             {presc.status === "Pending" && (
                               <>
-                                <button className="flex items-center text-green-600 hover:text-green-900">
+                                <button className="flex items-center text-green-400 hover:text-green-300 transition-colors">
                                   <Check className="w-4 h-4 mr-1" /> Approve
                                 </button>
-                                <button className="flex items-center text-red-600 hover:text-red-900">
+                                <button className="flex items-center text-red-400 hover:text-red-300 transition-colors">
                                   <X className="w-4 h-4 mr-1" /> Reject
                                 </button>
                               </>
@@ -923,7 +874,7 @@ const DocDash = () => {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Video Consultations</h2>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
+                <button className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 text-white px-4 py-2 rounded-lg flex items-center">
                   <Video className="w-4 h-4 mr-2" /> Schedule New Call
                 </button>
               </div>
@@ -950,13 +901,12 @@ const DocDash = () => {
                       videoAppointments.map((app) => (
                         <div
                           key={app.id}
-                          className={`p-4 rounded-lg border ${
-                            app.status === "Confirmed"
-                              ? "border-green-500 bg-green-100"
-                              : app.status === "Pending"
+                          className={`p-4 rounded-lg border ${app.status === "Confirmed"
+                            ? "border-green-500 bg-green-100"
+                            : app.status === "Pending"
                               ? "border-yellow-500 bg-yellow-100"
                               : "border-red-500 bg-red-100"
-                          }`}
+                            }`}
                         >
                           <h4 className="font-semibold">{app.patientName}</h4>
                           <p className="text-sm text-gray-600">
@@ -964,13 +914,12 @@ const DocDash = () => {
                           </p>
                           <p className="text-sm text-gray-600">{app.time}</p>
                           <p
-                            className={`text-sm font-medium ${
-                              app.status === "Confirmed"
-                                ? "text-green-700"
-                                : app.status === "Pending"
+                            className={`text-sm font-medium ${app.status === "Confirmed"
+                              ? "text-green-700"
+                              : app.status === "Pending"
                                 ? "text-yellow-700"
                                 : "text-red-700"
-                            }`}
+                              }`}
                           >
                             {app.status}
                           </p>

@@ -4,18 +4,18 @@ import "leaflet/dist/leaflet.css";
 
 const Maps = () => {
   return (
-    <div className="w-full min-h-screen flex flex-col items-center bg-white">
+    <div className="w-full min-h-screen flex flex-col items-center bg-dark">
       {/* Header Section */}
       <div className="py-12 px-6 md:px-12">
-      <h1 className="text-center text-2xl md:text-4xl lg:text-5xl text-green-500 font-light leading-relaxed tracking-wide">Contact</h1>
-      <p className="text-center text-gray-700 mb-8">See The Near by Clinics adn Medical Centers </p>
+        <h1 className="text-center text-2xl md:text-4xl lg:text-5xl text-primary font-light leading-relaxed tracking-wide">Contact</h1>
+        <p className="text-center text-gray-300 mb-8">See The Near by Clinics adn Medical Centers </p>
       </div>
       <div className="w-full max-w-6xl flex items-center justify-between p-6">
-      
+
       </div>
 
       {/* Full-screen Map Section */}
-      <div className="w-full h-[calc(100vh-80px)]">
+      <div className="w-full h-[calc(100vh-80px)] border border-white/10 rounded-xl overflow-hidden shadow-lg">
         <MapContainer
           center={[40.7128, -74.006]} // New York City coordinates
           zoom={12}

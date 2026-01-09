@@ -2,18 +2,17 @@ import React, { useState, useEffect } from "react";
 import { api } from "../../axios.config.js"; // Axios instance
 import { Link } from "react-router-dom";
 import {
-  Bell,
-  Settings,
   Search,
   Upload,
   Calendar,
   FileText,
   MessageCircle,
+  Settings
 } from "lucide-react";
 import Notibell from "../Noti/Notibell.jsx";
 import socket from "../../socket.js";
 import { showAlert } from "../alert-system.js";
-
+import Sidebar from "../Sidebar";
 
 const Dashboard = () => {
   // States for various sections
@@ -59,13 +58,13 @@ const Dashboard = () => {
     };
 
     fetchLeaveApplications();
-    
+
     socket.on("newNotification", (data) => {
       if (data.notification?.type === "leave") {
         showAlert(data.notification.message);
       }
     });
-  
+
     return () => {
       socket.off("newNotification");
     };
@@ -128,7 +127,7 @@ const Dashboard = () => {
       console.log("📥 New appointment received:", data);
       // showAlert(data.message, "custom", 10000);
       setNotificationCount((prev) => prev + 1);
-      const updatedAppointment = { 
+      const updatedAppointment = {
         ...data.appointment,
         doctorId: {
           ...(data.appointment.doctorId || {}),
@@ -250,67 +249,32 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-transparent text-white">
       {/* Sidebar */}
-      <div className="w-64 bg-white p-4 border-r">
-        <h2 className="text-xl font-bold text-green-600 mb-6">
-          Student Dashboard
-        </h2>
-        <nav className="space-y-2">
-          {[
-            { name: "Dashboard", path: "/dashboard" },
-            { name: "Appointments", path: "/appointment" },
-            { name: "Health Records", path: "/recordform" },
-            { name: "Certificate Generator", path: "/certificate" },
-          ].map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer"
-            >
-              <span className="ml-2 text-lg font-medium">{item.name}</span>
-            </Link>
-          ))}
-        </nav>
-        {/* AI Feature Section */}
-        <div className="mt-8">
-          <h3 className="text-xl font-bold text-green-600 mb-4">AI Features</h3>
-          <nav className="space-y-2">
-            {["Leave Concern", "Health Record Concern", "AI Diagnosis"].map((item) => (
-              <Link
-                key={item}
-                to={`/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer"
-              >
-                <span className="ml-2 text-lg font-medium">{item}</span>
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </div>
+      <Sidebar role="student" />
 
       {/* Main Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 transition-all duration-300">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Dashboard</h1>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border rounded-lg"
+                className="pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all duration-300 focus:w-64 w-48"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
               {/* Dropdown for suggestions */}
               {suggestions.length > 0 && (
-                <div className="absolute bg-white border rounded-lg mt-1 w-full z-10">
+                <div className="absolute bg-surface border border-white/10 rounded-lg mt-1 w-full z-10 shadow-xl">
                   {suggestions.map((item, index) => (
                     <div
                       key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      className="px-4 py-2 hover:bg-white/10 cursor-pointer text-gray-200"
                       onClick={() => handleSuggestionClick(item)}
                     >
                       {item}
@@ -319,8 +283,7 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
-            <Notibell count={notificationCount} setCount={setNotificationCount} className="w-6 h-6 text-gray-400 cursor-pointer" />
-            <Settings className="w-6 h-6 text-gray-400" />
+            <Settings className="w-6 h-6 text-gray-400 hover:text-primary transition-colors cursor-pointer hover:rotate-90 duration-500" />
           </div>
         </div>
 
@@ -330,7 +293,7 @@ const Dashboard = () => {
             {
               title: "Health Records",
               action: "Upload Health Record",
-              color: "bg-blue-600",
+              color: "bg-gradient-to-r from-blue-600 to-cyan-400 shadow-lg shadow-blue-500/30",
               icon: Upload,
               history: "Last uploaded: Blood Test Report - 10th March 2025",
               route: "/recordform",
@@ -338,7 +301,7 @@ const Dashboard = () => {
             {
               title: "Leave Applications",
               action: "Apply for Leave",
-              color: "bg-green-600",
+              color: "bg-gradient-to-r from-emerald-500 to-lime-400 shadow-lg shadow-emerald-500/30",
               icon: FileText,
               history: "Last leave applied: 5th March 2025 (Medical Leave)",
               route: "/leave",
@@ -346,7 +309,7 @@ const Dashboard = () => {
             {
               title: "Appointments",
               action: "Book Appointment",
-              color: "bg-purple-600",
+              color: "bg-gradient-to-r from-purple-600 to-pink-500 shadow-lg shadow-purple-500/30",
               icon: Calendar,
               history: getNextAppointment(),
               route: "/appointment",
@@ -354,23 +317,24 @@ const Dashboard = () => {
             {
               title: "AI Diagnosis",
               action: "AI DIAGNOSIS",
-              color: "bg-yellow-500",
+              color: "bg-gradient-to-r from-amber-500 to-yellow-400 shadow-lg shadow-amber-500/30",
               icon: MessageCircle,
               history: "Last query: 'Best home remedies for fever?'",
               route: "/ai-diagnosis",
             },
           ].map((item, index) => (
-            <Link to={item.route} key={index} className="block">
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+            <Link to={item.route} key={index} className="block group">
+              <div className="glass-card p-6 hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden">
+                <div className={`absolute top-0 right-0 w-24 h-24 ${item.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-150 duration-500`}></div>
+                <h2 className="text-xl font-semibold mb-4 text-white relative z-10">
                   {item.title}
                 </h2>
                 <button
-                  className={`flex items-center justify-center ${item.color} text-white p-4 rounded-xl shadow-md w-full mb-4 text-lg font-semibold`}
+                  className={`flex items-center justify-center ${item.color} text-white p-4 rounded-xl shadow-md w-full mb-4 text-lg font-semibold btn-animated relative z-10`}
                 >
                   <item.icon className="mr-2" /> {item.action}
                 </button>
-                <p className="text-gray-800 text-lg font-medium bg-gray-100 p-4 rounded-lg shadow-sm">
+                <p className="text-gray-300 text-lg font-medium bg-white/5 p-4 rounded-lg shadow-sm border border-white/5 relative z-10">
                   {item.history}
                 </p>
               </div>
@@ -379,44 +343,40 @@ const Dashboard = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-6 border-b border-gray-300">
+        <div className="mb-6 border-b border-white/10">
           <nav className="flex space-x-6">
             <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 ${
-                activeTab === "leave"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-600 hover:text-blue-500"
-              }`}
+              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "leave"
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-400 hover:text-primary"
+                }`}
               onClick={() => setActiveTab("leave")}
             >
               Leave Applications
             </button>
             <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 ${
-                activeTab === "appointments"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-600 hover:text-blue-500"
-              }`}
+              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "appointments"
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-400 hover:text-primary"
+                }`}
               onClick={() => setActiveTab("appointments")}
             >
               My Appointments
             </button>
             <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 ${
-                activeTab === "healthRecords"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-600 hover:text-blue-500"
-              }`}
+              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "healthRecords"
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-400 hover:text-primary"
+                }`}
               onClick={() => setActiveTab("healthRecords")}
             >
               Health Records
             </button>
             <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 ${
-                activeTab === "aiDiagnosis"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-600 hover:text-blue-500"
-              }`}
+              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "aiDiagnosis"
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-400 hover:text-primary"
+                }`}
               onClick={() => setActiveTab("aiDiagnosis")}
             >
               AI Diagnosis
@@ -426,8 +386,8 @@ const Dashboard = () => {
 
         {/* Conditional Rendering of Sections based on Active Tab */}
         {activeTab === "leave" && (
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
-            <h2 className="text-lg font-semibold mb-4 text-gray-700">
+          <div className="glass-card p-6 mb-8 animate-fade-in">
+            <h2 className="text-lg font-semibold mb-4 text-white">
               Medical Leave Applications
             </h2>
             {leaveLoading ? (
@@ -435,7 +395,7 @@ const Dashboard = () => {
             ) : leaveError ? (
               <p>{leaveError}</p>
             ) : leaveApplications.length > 0 ? (
-              <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+              <table className="min-w-full bg-transparent border border-white/10 rounded-lg">
                 <thead>
                   <tr>
                     <th className="px-4 py-2 border-b text-left">Sno.</th>
@@ -449,7 +409,7 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {leaveApplications.map((leave, index) => (
-                    <tr key={leave._id}>
+                    <tr key={leave._id} className="hover:bg-white/5 transition-colors">
                       <td className="px-4 py-2 border-b">{index + 1}</td>
                       <td className="px-4 py-2 border-b">{leave.date}</td>
                       <td className="px-4 py-2 border-b">{leave.fromDate}</td>
@@ -457,23 +417,22 @@ const Dashboard = () => {
                       <td className="px-4 py-2 border-b">{leave.diagnosis}</td>
                       <td className="px-4 py-2 border-b">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            leave.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : leave.status === "approved"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${leave.status === "pending"
+                            ? "bg-yellow-500/20 text-yellow-400"
+                            : leave.status === "approved"
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-red-500/20 text-red-400"
+                            }`}
                         >
                           {leave.status && typeof leave.status === "string"
                             ? leave.status.charAt(0).toUpperCase() + leave.status.slice(1)
                             : "N/A"}
                         </span>
                       </td>
-                      <td className="px-4 py-2 border-b">
+                      <td className="px-4 py-2 border-b border-white/10">
                         <button
                           onClick={() => setSelectedLeave(leave)}
-                          className="text-blue-600 hover:underline"
+                          className="text-primary hover:underline"
                         >
                           View Status
                         </button>
@@ -488,8 +447,8 @@ const Dashboard = () => {
 
             {/* Modal for viewing selected leave details */}
             {selectedLeave && (
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-700">
+              <div className="glass-card p-6 mb-8 mt-4 border-l-4 border-primary">
+                <h2 className="text-lg font-semibold mb-4 text-white">
                   Medical Leave Details
                 </h2>
                 <p>
@@ -507,13 +466,12 @@ const Dashboard = () => {
                 <p>
                   <strong>Status:</strong>
                   <span
-                    className={`ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      selectedLeave.status === "pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : selectedLeave.status === "approved"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
+                    className={`ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${selectedLeave.status === "pending"
+                      ? "bg-yellow-500/20 text-yellow-400"
+                      : selectedLeave.status === "approved"
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-red-500/20 text-red-400"
+                      }`}
                   >
                     {selectedLeave.status.charAt(0).toUpperCase() +
                       selectedLeave.status.slice(1)}
@@ -521,7 +479,7 @@ const Dashboard = () => {
                 </p>
                 <button
                   onClick={() => setSelectedLeave(null)}
-                  className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                  className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 btn-animated"
                 >
                   Close
                 </button>
@@ -531,8 +489,8 @@ const Dashboard = () => {
         )}
 
         {activeTab === "appointments" && (
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
-            <h2 className="text-lg font-semibold mb-4 text-gray-700">
+          <div className="glass-card p-6 mb-8 animate-fade-in">
+            <h2 className="text-lg font-semibold mb-4 text-white">
               My Appointments
             </h2>
             {appointmentsLoading ? (
@@ -540,7 +498,7 @@ const Dashboard = () => {
             ) : appointmentsError ? (
               <p>{appointmentsError}</p>
             ) : appointments.length > 0 ? (
-              <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+              <table className="min-w-full bg-transparent border border-white/10 rounded-lg">
                 <thead>
                   <tr>
                     <th className="px-4 py-2 border-b text-left">Doctor</th>
@@ -551,35 +509,34 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {appointments.map((appointment) => (
-                    <tr key={appointment._id || appointment.id}>
-                      <td className="px-4 py-2 border-b">
+                    <tr key={appointment._id || appointment.id} className="hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-2 border-b border-white/10">
                         {appointment.doctorId?.name || "Not specified"}
                       </td>
-                      <td className="px-4 py-2 border-b">
+                      <td className="px-4 py-2 border-b border-white/10">
                         {formatDate(appointment.slotDateTime)}
                       </td>
-                      <td className="px-4 py-2 border-b">
+                      <td className="px-4 py-2 border-b border-white/10">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            appointment.status === "confirmed"
-                              ? "bg-green-100 text-green-800"
-                              : appointment.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800"
+                          className={`px-2 py-1 rounded-full text-xs ${appointment.status === "confirmed"
+                            ? "bg-green-500/20 text-green-400"
+                            : appointment.status === "pending"
+                              ? "bg-yellow-500/20 text-yellow-400"
                               : appointment.status === "cancelled"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
+                                ? "bg-red-500/20 text-red-400"
+                                : "bg-gray-500/20 text-gray-400"
+                            }`}
                         >
                           {appointment.status || "N/A"}
                         </span>
                       </td>
-                      <td className="px-4 py-2 border-b">
+                      <td className="px-4 py-2 border-b border-white/10">
                         {appointment.prescription ? (
                           <a
                             href={appointment.prescription}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
+                            className="text-primary hover:underline"
                           >
                             View Prescription
                           </a>
@@ -599,8 +556,8 @@ const Dashboard = () => {
 
         {activeTab === "healthRecords" && (
           <>
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
-              <h2 className="text-lg font-semibold mb-4 text-gray-700">
+            <div className="glass-card p-6 mb-8 animate-fade-in">
+              <h2 className="text-lg font-semibold mb-4 text-white">
                 Health Records
               </h2>
               {loading ? (
@@ -608,7 +565,7 @@ const Dashboard = () => {
               ) : error ? (
                 <p>{error}</p>
               ) : healthRecords.length > 0 ? (
-                <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+                <table className="min-w-full bg-transparent border border-white/10 rounded-lg">
                   <thead>
                     <tr>
                       <th className="px-4 py-2 border-b text-left">Sno.</th>
@@ -619,16 +576,16 @@ const Dashboard = () => {
                   </thead>
                   <tbody>
                     {healthRecords.map((record, index) => (
-                      <tr key={record._id}>
+                      <tr key={record._id} className="hover:bg-white/5 transition-colors">
                         <td className="px-4 py-2 border-b">{index + 1}</td>
                         <td className="px-4 py-2 border-b">{record.diagnosis}</td>
                         <td className="px-4 py-2 border-b">
                           {new Date(record.date).toLocaleDateString()}
                         </td>
-                        <td className="px-4 py-2 border-b">
+                        <td className="px-4 py-2 border-b border-white/10">
                           <button
                             onClick={() => viewHealthRecordDetails(record._id)}
-                            className="text-blue-600 hover:underline mr-4"
+                            className="text-primary hover:underline mr-4"
                           >
                             View
                           </button>
@@ -649,8 +606,8 @@ const Dashboard = () => {
             </div>
             {/* Display Selected Health Record Details */}
             {selectedRecord && (
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-700">
+              <div className="glass-card p-6 mb-8 animate-fade-in border-l-4 border-primary">
+                <h2 className="text-lg font-semibold mb-4 text-white">
                   Health Record Details
                 </h2>
                 <p>
@@ -669,7 +626,7 @@ const Dashboard = () => {
                 </p>
                 <button
                   onClick={() => setSelectedRecord(null)}
-                  className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                  className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 btn-animated"
                 >
                   Close
                 </button>
@@ -679,8 +636,8 @@ const Dashboard = () => {
         )}
 
         {activeTab === "aiDiagnosis" && (
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
-            <h2 className="text-lg font-semibold mb-4 text-gray-700">
+          <div className="glass-card p-6 mb-8 animate-fade-in">
+            <h2 className="text-lg font-semibold mb-4 text-white">
               AI Diagnosis
             </h2>
             <p>This is where your AI Diagnosis content would go.</p>
@@ -689,9 +646,9 @@ const Dashboard = () => {
 
         {/* Modal for displaying search results */}
         {searchResults.length > 0 && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-              <h3 className="text-lg font-medium leading-6 text-gray-900 mb-2">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border border-white/10 w-96 shadow-lg rounded-md bg-surface">
+              <h3 className="text-lg font-medium leading-6 text-white mb-2">
                 Search Results
               </h3>
               {searchResults.map((record) => (
@@ -714,7 +671,7 @@ const Dashboard = () => {
               ))}
               <button
                 onClick={() => setSearchResults([])}
-                className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 btn-animated"
               >
                 Close
               </button>
@@ -727,4 +684,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-  

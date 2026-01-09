@@ -1,19 +1,19 @@
 import { io } from "socket.io-client";
-import './components/alert-system.js';
 import { showAlert } from './components/alert-system.js';
 
 const getToken = () => localStorage.getItem("token");
 
 
-const socket = io("http://localhost:3053", {  // Change URL if needed
+
+const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:3053", {  // Change URL if needed
   withCredentials: true,
   transports: ["websocket"],
-  auth:{ token: getToken() }, 
+  auth: { token: getToken() },
 });
 
 socket.on("connect", () => {
   console.log("Connected to Socket.io server with ID:", socket.id);
-  
+
   const token = getToken();
   if (token) {
     console.log("Token found, authenticating...");
@@ -30,12 +30,12 @@ socket.on("connect", () => {
 //   showAlert(data.message, 'custom', 10000);
 // });
 socket.on("newLeaveRequest", (data) => {
-  console.log("newLeave Request:",data);
+  console.log("newLeave Request:", data);
   showAlert(data.message, 'custom', 10000);
 });
 
 socket.on("leaveStatusUpdate", (data) => {
-  console.log("Leave status updated: ",data);
+  console.log("Leave status updated: ", data);
   showAlert(data.message, 'custom', 10000);
 });
 

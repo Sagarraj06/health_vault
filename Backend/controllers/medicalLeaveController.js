@@ -1,165 +1,170 @@
-// medicalLeaveController.js
-import { MedicalLeave } from "../models/medicalLeaveModel.js";
-import { User } from "../models/index.js";
-import { Notification } from "../models/notificationModel.js";
-
+import { query } from "../db/postgres.js";
 import { uploadMultipleDocuments } from "../utils/cloudinary.js";
-import { HealthRecord } from "../models/healthRecordModel.js";
+import pusher from "../utils/pusher.js";
 import fs from "fs";
 
 // Apply for Medical Leave
 export const applyMedicalLeave = async (req, res) => {
   try {
-    // By this point, multer middleware has already processed the files
-    // and made them available in req.files, and form fields in req.body
     const { fromDate, toDate, reason, healthRecordId } = req.body;
+    const studentId = req.user.id;
 
     // Process uploaded files
     let supportingDocuments = [];
     if (req.files && req.files.length > 0) {
-      // Upload files to Cloudinary
       const filePaths = req.files.map(file => file.path);
       const uploadResults = await uploadMultipleDocuments(filePaths);
 
-      // Format the document array for storage
       supportingDocuments = uploadResults.map(result => ({
         url: result.secure_url,
         publicId: result.public_id,
         format: result.format
       }));
 
-      // Clean up temp files after upload
       req.files.forEach(file => {
         fs.unlink(file.path, (err) => {
           if (err) console.error(`Failed to delete temp file: ${file.path}`, err);
         });
       });
     }
-    const student = await User.findById(req.user.id).select("name");
 
-    // Create the medical leave request with all form data
-    const leaveRequest = await MedicalLeave.create({
-      studentId: req.user.id,
+    // Insert Leave Request
+    const insertQuery = `
+      INSERT INTO medical_leaves (student_id, health_record_id, from_date, to_date, reason, supporting_documents, status)
+      VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+      RETURNING *;
+    `;
+
+    const leaveResult = await query(insertQuery, [
+      studentId,
       healthRecordId,
       fromDate,
       toDate,
       reason,
-      supportingDocuments,
-      status: "pending",
-    });
-    const fullLeave = await MedicalLeave.findById(leaveRequest._id)
-      .populate("studentId", "name gender studentId") // Include name, gender, roll number
-      .populate({
-        path: "healthRecordId",
-        select: "diagnosis date doctorId isManualUpload externalDoctorName",
-        populate: {
-          path: "doctorId",
-          select: "name"
-        }
-      });
+      JSON.stringify(supportingDocuments)
+    ]);
 
+    const leaveRequest = leaveResult.rows[0];
 
-    // Emit real-time notification to ALL online admins
+    // Fetch full details for notification (simulating populate)
+    const fullLeaveQuery = `
+      SELECT ml.*, 
+             s.name as student_name, s.gender as student_gender,
+             hr.diagnosis, hr.date as hr_date, hr.is_manual_upload, hr.external_doctor_name,
+             d.name as doctor_name
+      FROM medical_leaves ml
+      JOIN users s ON ml.student_id = s.id
+      JOIN health_records hr ON ml.health_record_id = hr.id
+      LEFT JOIN users d ON hr.doctor_id = d.id
+      WHERE ml.id = $1
+    `;
+
+    const fullLeaveResult = await query(fullLeaveQuery, [leaveRequest.id]);
+    const fullLeave = fullLeaveResult.rows[0];
+
+    // Notification Logic
     const io = req.app.get("socketio");
     const onlineUsers = req.app.get("onlineUsers");
-    //save in mongo db
-    const studentNotification = await Notification.create({
-      recipientId: req.user.id,
-      type: "leave",
-      message: "Your leave request has been submitted successfully.",
-    });
 
-    // Find all admins and notify them 
-    onlineUsers.forEach(async (socket, userId) => {
-      const user = await User.findById(userId);
-      if (user && user.role == "admin") {
+    // Notify Student
+    await query(`
+      INSERT INTO notifications (recipient_id, type, message)
+      VALUES ($1, 'leave', 'Your leave request has been submitted successfully.')
+    `, [studentId]);
 
+    // Notify Admins
+    // First, find all admins
+    const adminsResult = await query("SELECT id FROM users WHERE role = 'admin'");
+    const admins = adminsResult.rows;
 
-        const savedNotification = await Notification.create({
-          recipientId: user._id,
-          type: "leave",
-          message: `Student ${student.name} has applied for medical leave!`,
-        });
+    for (const admin of admins) {
+      const adminNotifResult = await query(`
+        INSERT INTO notifications (recipient_id, type, message)
+        VALUES ($1, 'leave', $2)
+        RETURNING *
+      `, [admin.id, `Student ${fullLeave.student_name} has applied for medical leave!`]);
 
-        socket.emit("newLeaveNotification", {
+      const savedNotification = adminNotifResult.rows[0];
+
+      if (onlineUsers && onlineUsers.has(admin.id.toString())) {
+        const adminSocket = onlineUsers.get(admin.id.toString());
+        adminSocket.emit("newLeaveNotification", {
           notification: savedNotification,
           leave: {
-            // ...leaveRequest.toObject(),
-            // studentName: student.name,
-            _id: fullLeave._id,
-            id: fullLeave._id,
+            id: fullLeave.id,
+            _id: fullLeave.id, // For frontend compatibility
             reason: fullLeave.reason,
-            fromDate: fullLeave.fromDate.toISOString().split("T")[0],
-            toDate: fullLeave.toDate.toISOString().split("T")[0],
-            diagnosis: fullLeave.healthRecordId?.diagnosis || "N/A",
-            date: fullLeave.healthRecordId?.date?.toISOString().split("T")[0] || "N/A",
-            doctorName: fullLeave.healthRecordId?.isManualUpload
-              ? fullLeave.healthRecordId?.externalDoctorName || "N/A"
-              : fullLeave.healthRecordId?.doctorId?.name || "N/A",
+            fromDate: new Date(fullLeave.from_date).toISOString().split("T")[0],
+            toDate: new Date(fullLeave.to_date).toISOString().split("T")[0],
+            diagnosis: fullLeave.diagnosis || "N/A",
+            date: fullLeave.hr_date ? new Date(fullLeave.hr_date).toISOString().split("T")[0] : "N/A",
+            doctorName: fullLeave.is_manual_upload
+              ? fullLeave.external_doctor_name || "N/A"
+              : fullLeave.doctor_name || "N/A",
             status: fullLeave.status,
-            studentName: fullLeave.studentId?.name || "N/A",
-            studentId: fullLeave.studentId?._id || "N/A", // Student Roll No
-            gender: fullLeave.studentId?.gender || "N/A",
-
-            duration: `${fullLeave.fromDate.toISOString().split("T")[0]} to ${fullLeave.toDate.toISOString().split("T")[0]}`
-          },
-
+            studentName: fullLeave.student_name || "N/A",
+            studentId: fullLeave.student_id || "N/A",
+            gender: fullLeave.student_gender || "N/A",
+            duration: `${new Date(fullLeave.from_date).toISOString().split("T")[0]} to ${new Date(fullLeave.to_date).toISOString().split("T")[0]}`
+          }
         });
-
       }
-    });
+    }
 
     res.status(201).json({
       message: "Medical leave applied",
       leaveRequest: {
-        ...leaveRequest.toObject(),
-        studentName: student.name,
+        ...leaveRequest,
+        studentName: fullLeave.student_name
       }
     });
+
   } catch (error) {
     console.error("Error applying for leave:", error);
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-
 export const getAllLeaveApplications = async (req, res) => {
   try {
     const { role, id: userId } = req.user;
-    let query = {};
+    let sql = `
+      SELECT ml.*, 
+             s.name as student_name, s.email as student_email,
+             hr.diagnosis, hr.date as hr_date, hr.is_manual_upload, hr.external_doctor_name, hr.attachments as hr_attachments,
+             d.name as doctor_name
+      FROM medical_leaves ml
+      JOIN users s ON ml.student_id = s.id
+      LEFT JOIN health_records hr ON ml.health_record_id = hr.id
+      LEFT JOIN users d ON hr.doctor_id = d.id
+    `;
 
+    const params = [];
     if (role === "student") {
-      query = { studentId: userId };
+      sql += " WHERE ml.student_id = $1";
+      params.push(userId);
     }
-    // If role is "admin", query remains empty, fetching all applications
 
-    const leaveApplications = await MedicalLeave.find(query)
-      .populate("studentId", "name email")
-      .populate({
-        path: "healthRecordId",
-        select: "diagnosis date doctorId isManualUpload externalDoctorName attachments",
-        populate: {
-          path: "doctorId",
-          select: "name"
-        }
-      });
+    sql += " ORDER BY ml.created_at DESC";
 
-    const formattedApplications = leaveApplications.map((application) => ({
-      id: application._id,
-      reason: application.reason,
-      fromDate: application.fromDate.toISOString().split("T")[0],
-      toDate: application.toDate.toISOString().split("T")[0],
-      diagnosis: application.healthRecordId?.diagnosis || "N/A",
-      date: application.healthRecordId?.date?.toISOString().split("T")[0] || "N/A",
-      doctorName: application.healthRecordId?.isManualUpload
-        ? application.healthRecordId.externalDoctorName || "N/A"
-        : application.healthRecordId?.doctorId?.name || "N/A",
-      status: application.status
+    const result = await query(sql, params);
+
+    const formattedApplications = result.rows.map((app) => ({
+      id: app.id,
+      reason: app.reason,
+      fromDate: new Date(app.from_date).toISOString().split("T")[0],
+      toDate: new Date(app.to_date).toISOString().split("T")[0],
+      diagnosis: app.diagnosis || "N/A",
+      date: app.hr_date ? new Date(app.hr_date).toISOString().split("T")[0] : "N/A",
+      doctorName: app.is_manual_upload
+        ? app.external_doctor_name || "N/A"
+        : app.doctor_name || "N/A",
+      status: app.status
     }));
 
     res.status(200).json(formattedApplications);
   } catch (error) {
-    console.error("Error fetching leave applications:", error.stack); // Re-add full error stack
+    console.error("Error fetching leave applications:", error);
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
@@ -167,8 +172,14 @@ export const getAllLeaveApplications = async (req, res) => {
 // Get Leave Status for Student
 export const getLeaveStatus = async (req, res) => {
   try {
-    const leaveRequests = await MedicalLeave.find({ studentId: req.user.id }).populate("healthRecordId");
-    res.status(200).json(leaveRequests);
+    const sql = `
+      SELECT ml.*, hr.* 
+      FROM medical_leaves ml
+      LEFT JOIN health_records hr ON ml.health_record_id = hr.id
+      WHERE ml.student_id = $1
+    `;
+    const result = await query(sql, [req.user.id]);
+    res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching leave status:", error);
     res.status(500).json({ message: "Server Error", error: error.message });

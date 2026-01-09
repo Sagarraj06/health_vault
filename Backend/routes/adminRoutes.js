@@ -1,7 +1,7 @@
 import express from "express";
-import { adminGetSearchSuggestions, adminSearchHealthRecords, getMedicalLeaveApplications, updateLeaveStatus, viewLeaveDetails } from "../controllers/adminController.js";
+import { adminGetSearchSuggestions, adminSearchHealthRecords, getMedicalLeaveApplications, updateLeaveStatus, viewLeaveDetails, getDashboardStats, getHealthAnalytics } from "../controllers/adminController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import {getHealthRecordsadmin} from "../controllers/healthRecordController.js";
+import { getHealthRecordsadmin } from "../controllers/healthRecordController.js";
 
 const router = express.Router();
 
@@ -12,5 +12,9 @@ router.get("/:id/details", authMiddleware(["admin"]), viewLeaveDetails); // View
 router.get("/healthrecord", authMiddleware(["admin"]), getHealthRecordsadmin);
 router.get("/search", authMiddleware(["admin"]), adminSearchHealthRecords);
 router.get("/searchSuggestions", authMiddleware(["admin"]), adminGetSearchSuggestions);
+
+// Analytics Routes
+router.get("/stats", authMiddleware(["admin"]), getDashboardStats);
+router.get("/analytics", authMiddleware(["admin"]), getHealthAnalytics);
 
 export default router;

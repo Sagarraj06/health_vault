@@ -50,26 +50,26 @@ const Leavechat = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-green-50">
+    <div className="flex flex-col min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white p-4 shadow-md">
+      <header className="glass-card border-b border-white/10 text-white p-4 shadow-lg rounded-none">
         <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-2xl md:text-3xl font-bold">Leave Management System</h1>
-          <p className="text-sm md:text-base text-green-100">Ask questions about your leave status</p>
+          <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Leave Management System</h1>
+          <p className="text-sm md:text-base text-gray-400">Ask questions about your leave status</p>
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-6xl mx-auto w-full p-4">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-6xl mx-auto w-full p-4 gap-4">
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col overflow-hidden mr-0 md:mr-4 mb-4 md:mb-0">
+        <div className="flex-1 flex flex-col overflow-hidden w-full md:w-auto">
           {/* Chat History */}
-          <div className="flex-1 bg-white rounded-lg shadow-md p-4 overflow-y-auto mb-4 border border-green-200">
+          <div className="flex-1 glass-card rounded-2xl shadow-xl p-4 overflow-y-auto mb-4 border border-white/10">
             {chatHistory.length === 0 ? (
-              <div className="text-center text-gray-500 my-8">
-                <div className="mb-3">
+              <div className="text-center text-gray-400 my-8">
+                <div className="mb-3 bg-primary/10 p-4 rounded-full inline-block">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 mx-auto text-gray-400"
+                    className="h-12 w-12 mx-auto text-primary"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -82,7 +82,7 @@ const Leavechat = () => {
                     />
                   </svg>
                 </div>
-                Ask a question about your leave status
+                <p>Ask a question about your leave status</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -92,11 +92,10 @@ const Leavechat = () => {
                     className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-full md:max-w-3/4 rounded-lg p-3 ${
-                        message.type === 'user'
-                          ? 'bg-green-500 text-white font-bold'
-                          : 'bg-gray-100 text-gray-800 font-bold'
-                      }`}
+                      className={`max-w-full md:max-w-3/4 rounded-2xl p-4 shadow-md ${message.type === 'user'
+                        ? 'bg-primary text-white font-medium'
+                        : 'bg-surface border border-white/10 text-gray-200 font-medium'
+                        }`}
                     >
                       <div className="whitespace-pre-wrap break-words">{message.content}</div>
                     </div>
@@ -107,7 +106,7 @@ const Leavechat = () => {
           </div>
 
           {/* Input Form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 border border-green-200">
+          <form onSubmit={handleSubmit} className="glass-card rounded-2xl shadow-xl p-4 border border-white/10">
             <div className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
@@ -115,13 +114,13 @@ const Leavechat = () => {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="Ask about your leave status..."
-                  className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-3 rounded-xl border border-white/20 bg-dark text-white focus:outline-none focus:border-primary transition-all duration-300 placeholder-gray-500"
                   required
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md disabled:bg-green-400"
+                  className="w-full sm:w-auto btn-animated bg-gradient-to-r from-primary to-secondary text-white font-bold py-2 px-6 rounded-xl disabled:opacity-70 shadow-lg"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">
@@ -145,41 +144,41 @@ const Leavechat = () => {
                   )}
                 </button>
               </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
+              {error && <p className="text-red-400 text-sm bg-red-500/10 p-2 rounded border border-red-500/20">{error}</p>}
             </div>
           </form>
         </div>
 
         {/* Response Panel */}
-        <div className="w-full md:w-80 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
-          <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Response Details</h2>
+        <div className="w-full md:w-80 glass-card rounded-2xl shadow-xl p-6 border border-white/10 overflow-y-auto">
+          <h2 className="text-lg font-bold mb-4 text-primary border-b border-white/10 pb-2">Response Details</h2>
 
           {response ? (
             <div>
-              <div className="bg-gray-50 p-3 rounded-lg mb-4">
-                <div className="text-sm font-bold text-gray-500 mb-1">Answer:</div>
-                <div className="text-xl text-gray-800">{formatResponse(response.answer)}</div>
+              <div className="bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
+                <div className="text-sm font-bold text-gray-400 mb-1">Answer:</div>
+                <div className="text-lg text-gray-200">{formatResponse(response.answer)}</div>
               </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <div className="text-sm font-bold text-gray-500 mb-1">Status:</div>
+              <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                <div className="text-sm font-bold text-gray-400 mb-1">Status:</div>
                 <div className="text-sm font-bold">
                   {response.status === 'success' ? (
-                    <span className="text-green-600">{response.status}</span>
+                    <span className="text-green-400 bg-green-500/20 px-2 py-1 rounded">{response.status}</span>
                   ) : (
-                    <span className="text-red-600">{response.status}</span>
+                    <span className="text-red-400 bg-red-500/20 px-2 py-1 rounded">{response.status}</span>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center text-gray-500 my-8">
+            <div className="text-center text-gray-400 my-8">
               Submit a question to see response details
             </div>
           )}
 
           <div className="mt-6 text-xs text-gray-500">
             <p>Example questions:</p>
-            <ul className="mt-2 list-disc pl-5 space-y-1">
+            <ul className="mt-2 list-disc pl-5 space-y-1 text-gray-400">
               <li>How many leave days do I have left?</li>
               <li>When was my last leave request?</li>
               <li>Are any of my leaves confirmed?</li>
