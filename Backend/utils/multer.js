@@ -2,12 +2,10 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import os from "os";
 
-// Ensure uploads directory exists
-const uploadDir = 'uploads/';
-if (!fs.existsSync(uploadDir)){
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Use /tmp for serverless (Vercel) compatibility
+const uploadDir = os.tmpdir();
 
 // Configure multer storage
 const storage = multer.diskStorage({
@@ -20,11 +18,11 @@ const storage = multer.diskStorage({
 });
 
 // Validate file types
-const fileFilter = function(req, file, cb) {
+const fileFilter = function (req, file, cb) {
   const filetypes = /jpeg|jpg|png|pdf|doc|docx/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
-  
+
   if (mimetype && extname) {
     return cb(null, true);
   } else {
@@ -33,7 +31,7 @@ const fileFilter = function(req, file, cb) {
 };
 
 // Create and export the multer middleware
-const upload = multer({ 
+const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter
