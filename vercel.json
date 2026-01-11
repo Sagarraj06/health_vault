@@ -26,11 +26,15 @@
       "dest": "/Backend/ai/app.py"
     },
     {
+      "src": "/(.*)",
+      "dest": "/Frontend/$1"
+    },
+    {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/Frontend/index.html"
     }
   ]
 }
