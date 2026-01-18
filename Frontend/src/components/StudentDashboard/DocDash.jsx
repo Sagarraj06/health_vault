@@ -35,55 +35,53 @@ import Notibell from "../Noti/Notibell.jsx";
 import Sidebar from "../Sidebar";
 
 const DocDash = () => {
+  // State for active tab - Moved to top to avoid ReferenceError
+  const [activeTab, setActiveTab] = useState("certificate");
   // Sample data for student certificates
-  const [certificates] = useState([
-    {
-      id: "CERT001",
-      studentName: "John Smith",
-      studentId: "STU10045",
-      gender: "Male",
-      certificateType: "Medical Fitness",
-      issueDate: "2025-02-15",
-      expiryDate: "2026-02-15",
-      documentLink: "fitness_cert.pdf",
-      status: "Pending",
-    },
-    {
-      id: "CERT002",
-      studentName: "Emma Johnson",
-      studentId: "STU10078",
-      gender: "Female",
-      certificateType: "Vaccination Record",
-      issueDate: "2025-01-20",
-      expiryDate: "2030-01-20",
-      documentLink: "vacc_record.pdf",
-      status: "Approved",
-    },
-    {
-      id: "CERT003",
-      studentName: "Michael Wang",
-      studentId: "STU10023",
-      gender: "Male",
-      certificateType: "Mental Health Clearance",
-      issueDate: "2025-03-05",
-      expiryDate: "2025-09-05",
-      documentLink: "mh_clearance.pdf",
-      status: "Pending",
-    },
-    {
-      id: "CERT004",
-      studentName: "Sarah Miller",
-      studentId: "STU10091",
-      gender: "Female",
-      certificateType: "Physical Examination",
-      issueDate: "2025-02-28",
-      expiryDate: "2026-02-28",
-      documentLink: "physical_exam.pdf",
-      status: "Rejected",
-    },
-  ]);
+  const [certificates, setCertificates] = useState([]);
+  const [prescriptions, setPrescriptions] = useState([]);
   const navigate = useNavigate();
 
+  // Fetch Certificates and Prescriptions
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        const res = await api.get('/certificate/pending-certificates');
+        setCertificates(res.data);
+      } catch (error) {
+        console.error("Error fetching certificates:", error);
+      }
+    };
+
+    const fetchPrescriptions = async () => {
+      try {
+        const res = await api.get('/certificate/pending-prescriptions');
+        setPrescriptions(res.data);
+      } catch (error) {
+        console.error("Error fetching prescriptions:", error);
+      }
+    };
+
+    if (activeTab === 'certificate') fetchCertificates();
+    if (activeTab === 'prescription') fetchPrescriptions();
+  }, [activeTab]);
+
+  const handleUpdateStatus = async (id, status) => {
+    try {
+      await api.patch(`/certificate/${id}/status`, { status });
+      // Refresh data
+      if (activeTab === 'certificate') {
+        const res = await api.get('/certificate/pending-certificates');
+        setCertificates(res.data);
+      } else {
+        const res = await api.get('/certificate/pending-prescriptions');
+        setPrescriptions(res.data);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Failed to update status");
+    }
+  };
   // Replace static appointment sample data with dynamic state
   const [appointments, setAppointments] = useState([]);
   const [loadingAppointments, setLoadingAppointments] = useState(true);
@@ -97,6 +95,12 @@ const DocDash = () => {
     activeCases: 0,
     videoConsultations: 0,
   });
+
+  // State to manage the currently selected appointment for viewing details
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -145,52 +149,7 @@ const DocDash = () => {
   }, []);
 
   // Sample data for prescriptions
-  const [prescriptions] = useState([
-    {
-      id: "PRE001",
-      studentName: "John Smith",
-      studentId: "STU10045",
-      gender: "Male",
-      medication: "Paracetamol 500mg",
-      dosage: "Twice daily for 5 days",
-      issuedDate: "2025-03-10",
-      notes: "Take after meals",
-      status: "Pending",
-    },
-    {
-      id: "PRE002",
-      studentName: "Emma Johnson",
-      studentId: "STU10078",
-      gender: "Female",
-      medication: "Sumatriptan 50mg",
-      dosage: "As needed, max 2 tablets per day",
-      issuedDate: "2025-03-05",
-      notes: "For migraine attacks only",
-      status: "Approved",
-    },
-    {
-      id: "PRE003",
-      studentName: "Michael Wang",
-      studentId: "STU10023",
-      gender: "Male",
-      medication: "Ibuprofen 400mg",
-      dosage: "Three times daily for 7 days",
-      issuedDate: "2025-03-08",
-      notes: "For pain and inflammation",
-      status: "Pending",
-    },
-    {
-      id: "PRE004",
-      studentName: "Sarah Miller",
-      studentId: "STU10091",
-      gender: "Female",
-      medication: "Cetirizine 10mg",
-      dosage: "Once daily",
-      issuedDate: "2025-03-11",
-      notes: "Take in the evening",
-      status: "Rejected",
-    },
-  ]);
+
 
   // Remove static sample data for video call appointments and use dynamic state instead
   const [videoAppointments, setVideoAppointments] = useState([]);
@@ -216,7 +175,7 @@ const DocDash = () => {
   ];
 
   // State for active tab
-  const [activeTab, setActiveTab] = useState("certificate");
+
 
   // Helper function to format date in DD/month name/yyyy format
   const formatDate = (dateString) => {
@@ -306,7 +265,13 @@ const DocDash = () => {
 
   // Function to view appointment details (for example, opening a modal)
   const viewAppointmentDetails = (appointment) => {
-    console.log("View appointment details:", appointment);
+    setSelectedAppointment(appointment);
+    setIsModalOpen(true);
+  };
+
+  const closeAppointmentModal = () => {
+    setIsModalOpen(false);
+    setSelectedAppointment(null);
   };
 
   // New: Fetch video appointments from the API when the Video tab is active
@@ -698,26 +663,26 @@ const DocDash = () => {
                           {cert.id}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.studentName}
+                          {cert.student_name || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.studentId}
+                          {cert.student_email || cert.student_id || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.certificateType}
+                          {cert.diagnosis} {/* Using Diagnosis as Cert Type/Title */}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.issueDate}
+                          {new Date(cert.date).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.expiryDate}
+                          N/A
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-primary underline cursor-pointer hover:text-accent transition-colors">
-                          {cert.documentLink}
+                          View PDF
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cert.status === "Approved"
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cert.status === "Approved" || cert.status === "Verified"
                               ? "bg-green-500/20 text-green-400"
                               : cert.status === "Rejected"
                                 ? "bg-red-500/20 text-red-400"
@@ -734,10 +699,14 @@ const DocDash = () => {
                             </button>
                             {cert.status === "Pending" && (
                               <>
-                                <button className="flex items-center text-green-400 hover:text-green-300 transition-colors">
+                                <button
+                                  onClick={() => handleUpdateStatus(cert.id, 'Verified')}
+                                  className="flex items-center text-green-400 hover:text-green-300 transition-colors">
                                   <Check className="w-4 h-4 mr-1" /> Approve
                                 </button>
-                                <button className="flex items-center text-red-400 hover:text-red-300 transition-colors">
+                                <button
+                                  onClick={() => handleUpdateStatus(cert.id, 'Rejected')}
+                                  className="flex items-center text-red-400 hover:text-red-300 transition-colors">
                                   <X className="w-4 h-4 mr-1" /> Reject
                                 </button>
                               </>
@@ -815,26 +784,26 @@ const DocDash = () => {
                           {presc.id}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.studentName}
+                          {presc.student_name || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.studentId}
+                          {presc.student_email || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.medication}
+                          {presc.prescription || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.dosage}
+                          {presc.treatment || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.issuedDate}
+                          {new Date(presc.date).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-300 max-w-xs truncate">
-                          {presc.notes}
+                          {presc.diagnosis}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${presc.status === "Approved"
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${presc.status === "Approved" || presc.status === "Verified"
                               ? "bg-green-500/20 text-green-400"
                               : presc.status === "Rejected"
                                 ? "bg-red-500/20 text-red-400"
@@ -846,15 +815,31 @@ const DocDash = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-2 items-start">
-                            <button className="flex items-center text-primary hover:text-accent transition-colors">
-                              <Eye className="w-4 h-4 mr-1" /> View
+                            <button
+                              onClick={() => {
+                                if (presc.attachments && presc.attachments.length > 0) {
+                                  // Open the first attachment in a new tab if available
+                                  const url = presc.attachments[0].url || presc.attachments[0]; // Handle object or string
+                                  window.open(url, '_blank');
+                                } else {
+                                  // Fallback to modal if no attachment
+                                  alert("No attachment found for this record.");
+                                }
+                              }}
+                              className="flex items-center text-primary hover:text-accent transition-colors"
+                            >
+                              <Eye className="w-4 h-4 mr-1" /> View Attachment
                             </button>
                             {presc.status === "Pending" && (
                               <>
-                                <button className="flex items-center text-green-400 hover:text-green-300 transition-colors">
+                                <button
+                                  onClick={() => handleUpdateStatus(presc.id, 'Verified')}
+                                  className="flex items-center text-green-400 hover:text-green-300 transition-colors">
                                   <Check className="w-4 h-4 mr-1" /> Approve
                                 </button>
-                                <button className="flex items-center text-red-400 hover:text-red-300 transition-colors">
+                                <button
+                                  onClick={() => handleUpdateStatus(presc.id, 'Rejected')}
+                                  className="flex items-center text-red-400 hover:text-red-300 transition-colors">
                                   <X className="w-4 h-4 mr-1" /> Reject
                                 </button>
                               </>
@@ -941,6 +926,113 @@ const DocDash = () => {
           )}
         </div>
       </div>
+      {/* Appointment Details Modal */}
+      {isModalOpen && selectedAppointment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div
+            className="bg-[#1a1c23] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all scale-100 opacity-100"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-white/10">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <User className="w-5 h-5 text-primary" />
+                Appointment Details
+              </h3>
+              <button
+                onClick={closeAppointmentModal}
+                className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-2 transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
+                    Patient Name
+                  </p>
+                  <p className="text-white font-medium truncate">
+                    {selectedAppointment.patientName}
+                  </p>
+                </div>
+                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
+                    Student ID
+                  </p>
+                  <p className="text-white font-medium truncate">
+                    {selectedAppointment.studentId}
+                  </p>
+                </div>
+                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
+                    Date
+                  </p>
+                  <p className="text-white font-medium">
+                    {selectedAppointment.appointmentDate}
+                  </p>
+                </div>
+                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
+                    Time
+                  </p>
+                  <p className="text-white font-medium">
+                    {selectedAppointment.timeFrom} - {selectedAppointment.timeTo}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg border border-white/5">
+                <p className="text-xs text-gray-400 uppercase font-semibold mb-2">
+                  Reason for Visit
+                </p>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  {selectedAppointment.reason}
+                </p>
+              </div>
+
+              <div className="bg-white/5 p-4 rounded-lg border border-white/5">
+                <p className="text-xs text-gray-400 uppercase font-semibold mb-2">
+                  Contact Email
+                </p>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  {selectedAppointment.studentEmail}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between bg-white/5 p-3 rounded-lg border border-white/5">
+                <span className="text-gray-400 text-sm font-medium">
+                  Current Status
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${selectedAppointment.status === "Confirmed"
+                    ? "bg-green-500/20 text-green-400"
+                    : selectedAppointment.status === "Cancelled"
+                      ? "bg-red-500/20 text-red-400"
+                      : "bg-yellow-500/20 text-yellow-400"
+                    }`}
+                >
+                  {selectedAppointment.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-white/5 rounded-b-2xl">
+              <button
+                onClick={closeAppointmentModal}
+                className="px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition-all duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
