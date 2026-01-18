@@ -1,20 +1,31 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import React from "react";
-const patients = [
-  { id: 1, name: "Kanishka  Pandey", license: "MED12345", hash: "0xafvf498dty455ign230" },
-  { id: 2, name: "Ayush Gupta", license: "MED67890", hash: "852eb511f9a5c72e13c5" },
-  { id: 3, name: "Rahul Verma", license: "MED11223", hash: "ac7f747bfe9e9a06bac7bf60238f24" },
-  { id: 4, name: "Vaibhav Mandloi ", license: "MED99999", hash: "Not Found" },
-  { id: 5, name: "Urvashi Marmat ", license: "MED88888", hash: "Not Found" },
-];
+import { api } from "../../axios.config";
 
 export default function VerificationScreen() {
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [verified, setVerified] = useState(false);
+  const [searchId, setSearchId] = useState("");
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleVerify = () => {
-    setVerified(true);
+  const handleVerify = async () => {
+    if (!searchId) return;
+    setLoading(true);
+    setError("");
+    setVerificationResult(null);
+
+    try {
+      // The API route is /api/v1/certificate/verify/:id
+      // Assuming api is configured with base URL /api/v1
+      const res = await api.get(`/certificate/verify/${searchId}`);
+      setVerificationResult(res.data);
+    } catch (err) {
+      console.error(err);
+      setError("Certificate not found or invalid ID.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,57 +38,76 @@ export default function VerificationScreen() {
 
         <h2 className="text-3xl font-bold text-primary mb-6 text-center">Medical Certificate Verification</h2>
 
-        <ul className="mb-6 space-y-3">
-          {patients.map((patient) => (
-            <motion.li
-              key={patient.id}
-              whileHover={{ scale: 1.05 }}
-              className="cursor-pointer p-4 border border-white/10 rounded-lg bg-surface shadow-md flex justify-between items-center transition-all hover:bg-white/10 hover:shadow-lg"
-              onClick={() => {
-                setSelectedPatient(patient);
-                setVerified(false);
-              }}
-            >
-              <span className={`font-semibold ${patient.hash === "Not Found" ? "text-red-400" : "text-primary"}`}>{patient.name}</span>
-              <span className="text-gray-400">{patient.license}</span>
-            </motion.li>
-          ))}
-        </ul>
+        <div className="mb-6 space-y-3">
+          <div className="flex flex-col space-y-2">
+            <label className="text-gray-300 font-medium">Enter Certificate ID</label>
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+                placeholder="e.g. 12 or CERT-123"
+                className="flex-1 p-3 rounded-lg bg-surface border border-white/20 text-white focus:outline-none focus:border-primary transition-colors"
+              />
+              <button
+                onClick={handleVerify}
+                disabled={loading}
+                className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50"
+              >
+                {loading ? "..." : "Verify"}
+              </button>
+            </div>
+          </div>
+        </div>
 
-        {selectedPatient && (
+        {error && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="mt-4 p-4 bg-red-500/20 text-red-300 border border-red-500/50 rounded-lg text-center"
+          >
+            {error}
+          </motion.div>
+        )}
+
+        {verificationResult && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className={`mt-4 p-6 border rounded-xl shadow-lg ${selectedPatient.hash === "Not Found" ? "bg-red-500/10 border-red-500/50" : "bg-primary/10 border-primary/50"}`}
+            className={`mt-6 p-6 border rounded-xl shadow-lg bg-primary/10 border-primary/50`}
           >
-            <h3 className={`text-lg font-semibold mb-2 ${selectedPatient.hash === "Not Found" ? "text-red-400" : "text-primary"}`}>Certificate Details</h3>
-            <p><span className="font-medium text-gray-300">Patient:</span> <span className="text-white">{selectedPatient.name}</span></p>
-            <p><span className="font-medium text-gray-300">License Number:</span> <span className="text-white">{selectedPatient.license}</span></p>
-            <p className={`break-all font-medium ${selectedPatient.hash === "Not Found" ? "text-red-400" : "text-gray-400"}`}>
-              <span className="text-gray-300">Blockchain Hash:</span> {selectedPatient.hash}
+            <h3 className={`text-lg font-semibold mb-4 text-primary border-b border-primary/30 pb-2`}>
+              Verification Successful
+            </h3>
+
+            <div className="space-y-2">
+              <p><span className="font-medium text-gray-400">Certificate ID:</span> <span className="text-white float-right">{verificationResult.id}</span></p>
+              <p><span className="font-medium text-gray-400">Student Name:</span> <span className="text-white float-right">{verificationResult.studentName || "N/A"}</span></p>
+              <p><span className="font-medium text-gray-400">Type:</span> <span className="text-white float-right">{verificationResult.type || "General"}</span></p>
+              <p><span className="font-medium text-gray-400">Date:</span> <span className="text-white float-right">{new Date(verificationResult.date).toLocaleDateString()}</span></p>
+
+              <div className="pt-2 mt-2 border-t border-white/10">
+                <span className="font-medium text-gray-400 block mb-1">Status:</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block
+                        ${verificationResult.status === 'Verified' || verificationResult.status === 'Approved' ? 'bg-green-500/20 text-green-400' :
+                    verificationResult.status === 'Rejected' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                  }
+                    `}>
+                  {verificationResult.status}
+                </span>
+              </div>
+
+              {verificationResult.details && (
+                <div className="pt-2">
+                  <span className="font-medium text-gray-400 block">Details/Diagnosis:</span>
+                  <p className="text-white text-sm mt-1 bg-black/20 p-2 rounded">{verificationResult.details}</p>
+                </div>
+              )}
+            </div>
+
+            <p className="mt-4 text-center text-xs text-green-400 font-mono">
+              ✅ Cryptographically Signed & Verified
             </p>
-
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              className={`mt-4 w-full px-6 py-3 rounded-xl shadow-md transition-all ${selectedPatient.hash === "Not Found" ? "bg-red-600 hover:bg-red-700 text-white" : "bg-primary hover:bg-primary/80 text-white"}`}
-              onClick={handleVerify}
-            >
-              Verify
-            </motion.button>
-
-            {verified && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className={`mt-4 font-medium text-center ${selectedPatient.hash === "Not Found" ? "text-red-400" : "text-primary"}`}
-              >
-                {selectedPatient.hash === "Not Found"
-                  ? "❌ Verification Failed: This certificate is not found on the blockchain."
-                  : "✅ Verified: This certificate is issued by the platform and stored on the Polygon blockchain."}
-              </motion.p>
-            )}
           </motion.div>
         )}
       </motion.div>

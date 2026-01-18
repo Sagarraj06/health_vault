@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS health_records (
     external_doctor_name VARCHAR(255),
     external_hospital_name VARCHAR(255),
     attachments JSONB, -- Stores array of file objects {url, publicId, format}
+    status VARCHAR(20) DEFAULT 'Pending',
+    record_type VARCHAR(20) DEFAULT 'General',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

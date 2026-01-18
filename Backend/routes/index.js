@@ -7,6 +7,7 @@ import adminRouter from "./adminRoutes.js";
 import doctorRouter from "./doctorRoutes.js";
 import notificationRoutes from "./notififcationRoutes.js";
 import testRoutes from "./testRoutes.js"
+import certificateRoutes from "./certificateRoutes.js";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ const router = express.Router();
 router.use("/user", userRouter);
 router.use("/leave", medicalLeaveRouter);
 router.use("/health-record", healthRecordRouter);
+router.use("/certificate", certificateRoutes);
 router.use("/appointment", appointmentRouter);
 router.use("/medical-leaves", adminRouter);
 router.use("/admin", adminRouter);
