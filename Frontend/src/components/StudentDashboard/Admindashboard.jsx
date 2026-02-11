@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -245,28 +247,26 @@ const AdminDashboard = () => {
       <Sidebar role="admin" />
 
       {/* Main Content */}
-      <div className="flex-1 p-8 transition-all duration-300">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 pt-20 sm:pt-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">College Medical Admin Dashboard</h1>
-          <div className="flex items-center space-x-4">
-
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h1 className="text-2xl font-bold text-white tracking-tight">Admin Dashboard</h1>
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+              <Search className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all duration-300 focus:w-64 w-48"
+                className="pl-9 pr-4 py-2 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all duration-300 focus:w-64 w-48"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
-              {/* Dropdown for suggestions */}
               {suggestions.length > 0 && (
-                <div className="absolute bg-surface border border-white/10 rounded-lg mt-1 w-full z-10 shadow-xl">
+                <div className="absolute bg-surface-elevated border border-white/[0.06] rounded-xl mt-1 w-full z-10 shadow-2xl overflow-hidden">
                   {suggestions.map((item, index) => (
                     <div
                       key={index}
-                      className="px-4 py-2 hover:bg-white/10 cursor-pointer text-gray-200"
+                      className="px-4 py-2.5 hover:bg-white/[0.04] cursor-pointer text-gray-300 text-sm transition-colors"
                       onClick={() => handleSuggestionClick(item)}
                     >
                       {item}
@@ -275,140 +275,128 @@ const AdminDashboard = () => {
                 </div>
               )}
             </div>
-
-
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-              A
-            </div>
+            <Settings className="w-5 h-5 text-gray-500 hover:text-primary transition-colors cursor-pointer hover:rotate-90 duration-500" />
           </div>
         </div>
 
         {/* Statistics Overview */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { title: 'Total Students', value: stats.totalStudents, color: 'bg-gradient-to-r from-blue-600 to-cyan-500', icon: Users },
-            { title: 'Pending Leaves', value: stats.pendingLeaves, color: 'bg-gradient-to-r from-amber-500 to-yellow-400', icon: FileText },
-            { title: 'Open Health Cases', value: stats.openHealthCases, color: 'bg-gradient-to-r from-red-600 to-rose-500', icon: AlertCircle },
-            { title: 'Available Doctors', value: stats.availableDoctors, color: 'bg-gradient-to-r from-emerald-500 to-lime-500', icon: User }
+            { title: 'Total Students', value: stats.totalStudents, color: 'bg-cyan-500', icon: Users },
+            { title: 'Pending Leaves', value: stats.pendingLeaves, color: 'bg-amber-500', icon: FileText },
+            { title: 'Open Health Cases', value: stats.openHealthCases, color: 'bg-red-500', icon: AlertCircle },
+            { title: 'Available Doctors', value: stats.availableDoctors, color: 'bg-emerald-500', icon: User }
           ].map((item, index) => (
-            <div key={index} className="glass-card p-6 hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
-              <div className={`absolute top-0 right-0 w-20 h-20 ${item.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-150 duration-500`}></div>
-              <div className="flex justify-between items-center mb-4 relative z-10">
-                <div className={`${item.color} p-3 rounded-lg shadow-lg`}>
-                  <item.icon className="w-6 h-6 text-white" />
+            <div key={index} className="glass-card p-5 hover:scale-[1.01] hover:border-white/10 transition-all duration-300 relative overflow-hidden group">
+              <div className={`absolute top-0 right-0 w-20 h-20 ${item.color} opacity-5 rounded-bl-full -mr-2 -mt-2 transition-all group-hover:scale-150 duration-500`} />
+              <div className="flex justify-between items-center mb-3 relative z-10">
+                <div className={`${item.color} p-2.5 rounded-xl`}>
+                  <item.icon className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-gray-400 text-sm bg-white/5 px-2 py-1 rounded">Last 30 days</span>
+                <span className="text-gray-500 text-xs bg-white/[0.03] px-2 py-1 rounded-lg">Last 30 days</span>
               </div>
               <h2 className="text-2xl font-bold text-white relative z-10">{item.value}</h2>
-              <p className="text-gray-300 relative z-10">{item.title}</p>
+              <p className="text-gray-400 text-sm relative z-10">{item.title}</p>
             </div>
           ))}
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-white/10">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('leave')}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === 'leave' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-400 hover:text-primary transition-colors'}`}
-            >
-              Leave Applications
-            </button>
-            <button
-              onClick={() => setActiveTab('health')}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === 'health' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-400 hover:text-primary transition-colors'}`}
-            >
-              Health Records
-            </button>
-            <button
-              onClick={() => setActiveTab('doctors')}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === 'doctors' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-400 hover:text-primary transition-colors'}`}
-            >
-              Doctors
-            </button>
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === 'analytics' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-400 hover:text-primary transition-colors'}`}
-            >
-              Analytics
-            </button>
-          </div>
+        <div className="mb-6 border-b border-white/[0.06]">
+          <nav className="flex gap-1 overflow-x-auto">
+            {[
+              { key: 'leave', label: 'Leave Applications' },
+              { key: 'health', label: 'Health Records' },
+              { key: 'doctors', label: 'Doctors' },
+              { key: 'analytics', label: 'Analytics' },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                className={`py-2.5 px-4 text-xs font-medium border-b-2 transition-all duration-200 whitespace-nowrap ${activeTab === tab.key
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-white'
+                  }`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* Tab Content */}
-        <div className="glass-card p-6 animate-fade-in">
+        <div className="glass-card p-5 animate-fade-in">
           {/* Leave Applications Tab */}
           {activeTab === 'leave' && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Student Leave Applications</h2>
-                <div className="flex space-x-2">
-                  <select className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:ring-2 focus:ring-primary" value={selectedStatus} onChange={handleStatusChange}>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+                <h2 className="text-base font-semibold text-white">Student Leave Applications</h2>
+                <div className="flex gap-2">
+                  <select className="border border-white/[0.06] rounded-xl px-3 py-2 bg-white/[0.03] text-white text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20" value={selectedStatus} onChange={handleStatusChange}>
                     <option value="All Status">All Status</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                   </select>
-                  <button className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 text-white px-4 py-2 rounded-lg flex items-center">
+                  <button className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium btn-animated flex items-center">
                     <UserPlus className="w-4 h-4 mr-2" /> New Application
                   </button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-white/5">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Student Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Student ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Gender</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Duration</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Health issue</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+              <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="bg-white/[0.03]">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Student Name</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Student ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Gender</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Duration</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Health Issue</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-transparent divide-y divide-white/10">
+                  <tbody className="divide-y divide-white/[0.04]">
                     {[...leaveApplications]
                       .filter(app => selectedStatus === 'All Status' || app.status === selectedStatus)
                       .sort((a, b) => {
                         const aStart = new Date(a.duration.split(" to ")[0]);
                         const bStart = new Date(b.duration.split(" to ")[0]);
-                        return bStart - aStart; // Sort by startDate (descending)
+                        return bStart - aStart;
                       })
                       .map((app, index) => (
-                        <tr key={app._id} className="hover:bg-white/5 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{index + 1}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.studentName}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.studentId}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.gender}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.duration}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.diagnosis}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${app.status === 'approved' ? 'bg-green-500/20 text-green-400' :
-                              app.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
-                                'bg-yellow-500/20 text-yellow-400'
+                        <tr key={app._id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-4 py-3 text-sm font-medium text-gray-300">{index + 1}</td>
+                          <td className="px-4 py-3 text-sm text-gray-300">{app.studentName}</td>
+                          <td className="px-4 py-3 text-sm text-gray-300">{app.studentId}</td>
+                          <td className="px-4 py-3 text-sm text-gray-300">{app.gender}</td>
+                          <td className="px-4 py-3 text-sm text-gray-300">{app.duration}</td>
+                          <td className="px-4 py-3 text-sm text-gray-300">{app.diagnosis}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2.5 py-0.5 inline-flex text-xs font-medium rounded-lg ${app.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400' :
+                              app.status === 'rejected' ? 'bg-red-500/10 text-red-400' :
+                                'bg-yellow-500/10 text-yellow-400'
                               }`}>
                               {app.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button onClick={() => viewLeaveDetails(app.id)} className="text-primary hover:text-blue-300 mr-3 transition-colors">View</button>
+                          <td className="px-4 py-3 text-sm">
+                            <button onClick={() => viewLeaveDetails(app.id)} className="text-primary hover:underline mr-3 text-sm transition-colors">View</button>
                             {app.status === 'pending' && (
                               <>
-                                <button onClick={() => updateLeaveStatus(app.id, 'approved')} className="text-green-400 hover:text-green-300 mr-3 transition-colors">Approve</button>
-                                <button onClick={() => updateLeaveStatus(app.id, 'rejected')} className="text-red-400 hover:text-red-300 transition-colors">Reject</button>
+                                <button onClick={() => updateLeaveStatus(app.id, 'approved')} className="text-emerald-400 hover:text-emerald-300 mr-3 text-sm transition-colors">Approve</button>
+                                <button onClick={() => updateLeaveStatus(app.id, 'rejected')} className="text-red-400 hover:text-red-300 text-sm transition-colors">Reject</button>
                               </>
                             )}
                           </td>
                         </tr>
                       ))}
                   </tbody>
-
                 </table>
                 {selectedLeave && (
-                  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm overflow-y-auto h-full w-full">
-                    <div className="relative top-20 mx-auto p-5 border border-white/10 w-96 shadow-lg rounded-md bg-surface">
+                  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-start justify-center pt-20">
+                    <div className="relative mx-auto p-5 border border-white/[0.06] w-full max-w-md shadow-2xl rounded-2xl bg-surface-elevated">
                       <h3 className="text-lg font-medium leading-6 text-white mb-2">Leave Details</h3>
                       <p className="text-gray-300"><strong className="text-white">Student:</strong> {selectedLeave.studentName}</p>
                       <p className="text-gray-300"><strong className="text-white">StudentId:</strong> {selectedLeave.studentId}</p>
@@ -436,7 +424,7 @@ const AdminDashboard = () => {
                                 ></iframe>
                               ) : (
                                 <img
-                                  src={attachment.url}
+                                  src={attachment.url || "/placeholder.svg"}
                                   alt={`Image Attachment ${index + 1}`}
                                   className="max-w-full h-auto border border-white/20"
                                 />
@@ -456,7 +444,7 @@ const AdminDashboard = () => {
 
                       <button
                         onClick={() => setSelectedLeave(null)}
-                        className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        className="mt-3 bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 font-medium py-2 px-4 rounded-xl border border-white/[0.06] transition-colors text-sm"
                       >
                         Close
                       </button>
@@ -479,7 +467,7 @@ const AdminDashboard = () => {
                     placeholder="Search by ID or Name"
                     className="border border-white/20 rounded-lg px-3 py-2 w-full sm:w-auto bg-surface text-white placeholder-gray-400 focus:outline-none focus:border-primary"
                   />
-                  <button className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 text-white px-4 py-2 rounded-lg flex items-center justify-center">
+                  <button className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium btn-animated flex items-center justify-center hover:bg-primary/80 transition-colors">
                     <FileText className="w-4 h-4 mr-2" /> Add Record
                   </button>
                 </div>
@@ -551,7 +539,7 @@ const AdminDashboard = () => {
                           ) : (
                             // Render Image
                             <img
-                              src={attachment.url}
+                              src={attachment.url || "/placeholder.svg"}
                               alt={`Attachment ${index + 1}`}
                               className="max-w-full h-auto border border-white/20 mx-auto"
                             />
@@ -571,7 +559,7 @@ const AdminDashboard = () => {
                       <div className="flex justify-center sm:justify-end mt-5">
                         <button
                           onClick={() => setSelectedRecord(null)}
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                          className="bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 font-medium py-2 px-4 rounded-xl border border-white/[0.06] transition-colors text-sm"
                         >
                           Close
                         </button>
@@ -588,7 +576,7 @@ const AdminDashboard = () => {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">College Medical Staff</h2>
-                <button className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 text-white px-4 py-2 rounded-lg flex items-center">
+                <button className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium btn-animated flex items-center hover:bg-primary/80 transition-colors">
                   <UserPlus className="w-4 h-4 mr-2" /> Add Doctor
                 </button>
               </div>
@@ -737,7 +725,7 @@ const AdminDashboard = () => {
               ))}
               <button
                 onClick={() => setSearchResults([])}
-                className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                className="mt-4 bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl hover:bg-red-500/30 transition-colors text-sm font-medium"
               >
                 Close
               </button>

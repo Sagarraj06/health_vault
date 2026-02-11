@@ -68,112 +68,130 @@ const Navbar = React.memo(() => {
     }
   };
 
-  const NavLink = ({ to, children }) => (
-    <Link
-      to={to}
-      className="relative px-3 py-2 text-gray-300 hover:text-primary transition-colors duration-300 group"
-    >
-      {children}
-      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-    </Link>
-  );
+  const NavLink = ({ to, children }) => {
+    const isActive = location.pathname === to;
+    return (
+      <Link
+        to={to}
+        className={`relative px-3 py-2 text-sm font-medium transition-colors duration-300 group ${isActive ? 'text-primary' : 'text-gray-400 hover:text-white'}`}
+      >
+        {children}
+        <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary rounded-full transition-all duration-300 ${isActive ? 'w-4' : 'w-0 group-hover:w-full'}`}></span>
+      </Link>
+    );
+  };
 
   return (
-    <nav className={`fixed w-full z-50 top-0 left-0 px-6 py-4 glass border-b border-white/10 transition-transform duration-300 ${visible ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Logo and Back Button Container */}
-        <div className="flex items-center space-x-4">
-          {/* Back Button */}
-          {location.pathname !== '/' && (
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 rounded-full text-white/70 hover:text-primary hover:bg-white/10 transition-all duration-300 group"
-              aria-label="Go Back"
-            >
-              <FiArrowLeft className="text-xl group-hover:-translate-x-1 transition-transform" />
-            </button>
-          )}
-
-          {/* Logo */}
-          <div className="flex items-center space-x-2 group cursor-pointer" onClick={() => navigate('/')}>
-            <span className="text-primary text-3xl font-bold animate-pulse-slow">✦</span>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary group-hover:scale-105 transition-transform duration-300">
-              HealthVault
-            </span>
-          </div>
-        </div>
-
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-6 text-lg font-medium">
-          <li><NavLink to="/">Home</NavLink></li>
-          <li><NavLink to="/ai-bot">AI Bot</NavLink></li>
-          <li><NavLink to="/contact">Certificates</NavLink></li>
-          <li><NavLink to="/appointment">Appointment</NavLink></li>
-          <li><NavLink to="/video-call">Video Call</NavLink></li>
-        </ul>
-
-        {/* Auth Buttons */}
-        <div className="hidden md:flex items-center space-x-4">
-          {isLoggedIn ? (
-            <div className="flex items-center space-x-4">
-              <Notibell />
-              <div
-                onClick={handleProfileClick}
-                className="cursor-pointer w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex justify-center items-center text-white font-bold shadow-lg hover:shadow-primary/50 transition-all duration-300 transform hover:scale-110"
-              >
-                {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-              </div>
+    <nav className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 ${visible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className="mx-4 mt-3 rounded-2xl bg-dark/60 backdrop-blur-2xl border border-white/[0.06] shadow-2xl shadow-black/20 px-6 py-3">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* Logo and Back Button Container */}
+          <div className="flex items-center gap-3">
+            {/* Back Button */}
+            {location.pathname !== '/' && (
               <button
-                onClick={handleLogout}
-                className="px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-dark font-bold transition-all duration-300"
+                onClick={() => navigate(-1)}
+                className="p-2 rounded-xl text-gray-400 hover:text-primary hover:bg-white/[0.06] transition-all duration-300 group"
+                aria-label="Go Back"
               >
-                Logout
+                <FiArrowLeft className="text-lg group-hover:-translate-x-0.5 transition-transform" />
               </button>
-            </div>
-          ) : (
-            <div className="flex space-x-3">
-              <Link to="/signup">
-                <button className="px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-dark font-bold transition-all duration-300">
-                  Sign Up
-                </button>
-              </Link>
-              <Link to="/login">
-                <button className="px-5 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-lg hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105">
-                  Login
-                </button>
-              </Link>
-            </div>
-          )}
-        </div>
+            )}
 
-        {/* Mobile Toggle */}
-        <div className="md:hidden flex items-center space-x-4">
-          <button onClick={toggleMenu} className="text-3xl text-white hover:text-primary transition-colors">
-            {isOpen ? <FiX /> : <FiMenu />}
-          </button>
+            {/* Logo */}
+            <div className="flex items-center gap-2.5 group cursor-pointer" onClick={() => navigate('/')}>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
+                <span className="text-white text-sm font-bold">H</span>
+              </div>
+              <span className="text-lg font-semibold text-white tracking-tight">
+                HealthVault
+              </span>
+            </div>
+          </div>
+
+          {/* Desktop Menu */}
+          <ul className="hidden md:flex items-center gap-1 bg-white/[0.03] rounded-xl px-2 py-1.5">
+            <li><NavLink to="/">Home</NavLink></li>
+            <li><NavLink to="/ai-bot">AI Bot</NavLink></li>
+            <li><NavLink to="/contact">Certificates</NavLink></li>
+            <li><NavLink to="/appointment">Appointment</NavLink></li>
+            <li><NavLink to="/video-call">Video Call</NavLink></li>
+          </ul>
+
+          {/* Auth Buttons */}
+          <div className="hidden md:flex items-center gap-3">
+            {isLoggedIn ? (
+              <div className="flex items-center gap-3">
+                <Notibell />
+                <div
+                  onClick={handleProfileClick}
+                  className="cursor-pointer w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex justify-center items-center text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
+                >
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded-xl text-sm border border-white/10 text-gray-300 hover:bg-white/[0.06] hover:text-white font-medium transition-all duration-300"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link to="/signup">
+                  <button className="px-4 py-2 rounded-xl text-sm border border-white/10 text-gray-300 hover:bg-white/[0.06] hover:text-white font-medium transition-all duration-300">
+                    Sign Up
+                  </button>
+                </Link>
+                <Link to="/login">
+                  <button className="px-4 py-2 rounded-xl text-sm bg-primary text-white font-medium shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:bg-primary/90 transition-all duration-300">
+                    Login
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Toggle */}
+          <div className="md:hidden flex items-center gap-3">
+            {isLoggedIn && <Notibell />}
+            <button onClick={toggleMenu} className="p-2 rounded-xl text-white hover:bg-white/[0.06] transition-all" aria-label="Toggle menu">
+              {isOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 w-full bg-dark/95 backdrop-blur-xl border-b border-white/10 p-6 flex flex-col space-y-4 md:hidden animate-fade-in-down">
-          <div onClick={() => { navigate("/"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Home</div>
-          <div onClick={() => { navigate("/ai-bot"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">AI Bot</div>
-          <div onClick={() => { navigate("/contact"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Certificates</div>
-          <div onClick={() => { navigate("/appointment"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Appointment</div>
-          <div onClick={() => { navigate("/video-call"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Video Call</div>
+        <div className="mx-4 mt-2 rounded-2xl bg-dark/95 backdrop-blur-2xl border border-white/[0.06] p-5 flex flex-col gap-1 md:hidden animate-fade-in-down shadow-2xl">
+          {[
+            { label: "Home", path: "/" },
+            { label: "AI Bot", path: "/ai-bot" },
+            { label: "Certificates", path: "/contact" },
+            { label: "Appointment", path: "/appointment" },
+            { label: "Video Call", path: "/video-call" },
+          ].map((item) => (
+            <div
+              key={item.path}
+              onClick={() => { navigate(item.path); toggleMenu(); }}
+              className={`px-4 py-3 rounded-xl text-sm font-medium cursor-pointer transition-all ${location.pathname === item.path ? 'bg-primary/10 text-primary' : 'text-gray-300 hover:bg-white/[0.04] hover:text-white'}`}
+            >
+              {item.label}
+            </div>
+          ))}
 
-          <div className="h-px bg-white/10 my-2"></div>
+          <div className="h-px bg-white/[0.06] my-2"></div>
 
           {isLoggedIn ? (
-            <div className="flex flex-col space-y-4">
-              <div onClick={handleProfileClick} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Profile</div>
-              <button onClick={handleLogout} className="w-full py-3 rounded-lg border border-primary text-primary font-bold">Logout</button>
+            <div className="flex flex-col gap-2">
+              <div onClick={() => { handleProfileClick(); toggleMenu(); }} className="px-4 py-3 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all">Profile</div>
+              <button onClick={handleLogout} className="w-full py-3 rounded-xl border border-white/10 text-gray-300 font-medium text-sm hover:bg-white/[0.04] transition-all">Logout</button>
             </div>
           ) : (
-            <div className="flex flex-col space-y-3">
-              <Link to="/signup" onClick={toggleMenu} className="w-full py-3 rounded-lg border border-primary text-primary font-bold text-center">Sign Up</Link>
-              <Link to="/login" onClick={toggleMenu} className="w-full py-3 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold text-center">Login</Link>
+            <div className="flex flex-col gap-2">
+              <Link to="/signup" onClick={toggleMenu} className="w-full py-3 rounded-xl border border-white/10 text-gray-300 font-medium text-sm text-center hover:bg-white/[0.04] transition-all">Sign Up</Link>
+              <Link to="/login" onClick={toggleMenu} className="w-full py-3 rounded-xl bg-primary text-white font-medium text-sm text-center shadow-lg shadow-primary/20 transition-all">Login</Link>
             </div>
           )}
         </div>

@@ -105,20 +105,20 @@ const AppointmentForm = () => {
   const today = formatDate(new Date());
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-dark p-4 sm:p-6 md:p-8 lg:p-12">
-      <div className="glass-card rounded-lg shadow-lg p-4 sm:p-6 md:p-8 lg:p-10 w-full max-w-lg md:max-w-xl lg:w-1/2 mb-8 md:mb-0 border border-white/10">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary text-center">Book Your Appointment</h2>
-        <p className="text-gray-300 text-center mt-2 text-sm sm:text-base">Schedule your appointment easily with our doctors.</p>
+    <div className="flex flex-col md:flex-row items-center justify-center py-12 px-4 sm:px-6 md:px-8 lg:px-12">
+      <div className="glass-card p-6 sm:p-8 lg:p-10 w-full max-w-lg md:max-w-xl lg:w-1/2 mb-8 md:mb-0">
+        <h2 className="text-xl sm:text-2xl font-bold text-white text-center tracking-tight">Book Your Appointment</h2>
+        <p className="text-gray-400 text-center mt-2 text-sm">Schedule your appointment easily with our doctors.</p>
 
-        {success && <div className="bg-green-500/10 border-l-4 border-green-500 text-green-400 p-2 sm:p-3 my-3 sm:my-4 text-sm sm:text-base">{success}</div>}
-        {error && <div className="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-2 sm:p-3 my-3 sm:my-4 text-sm sm:text-base">{error}</div>}
+        {success && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 my-4 text-sm rounded-xl">{success}</div>}
+        {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 my-4 text-sm rounded-xl">{error}</div>}
 
-        <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-5 mt-6" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-gray-300 text-sm sm:text-base mb-1">Select Doctor</label>
+            <label className="block text-gray-400 text-xs font-medium mb-1.5 ml-1">Select Doctor</label>
             <select
               name="doctorId"
-              className="w-full border border-white/20 rounded-md p-2 text-sm sm:text-base bg-surface text-white focus:outline-none focus:border-primary"
+              className="w-full border border-white/[0.06] rounded-xl p-3.5 text-sm bg-white/[0.03] text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               onChange={handleChange}
               value={formData.doctorId}
               required
@@ -131,12 +131,12 @@ const AppointmentForm = () => {
           </div>
 
           <div>
-            <label className="block text-gray-300 text-sm sm:text-base mb-1">Select Date</label>
+            <label className="block text-gray-400 text-xs font-medium mb-1.5 ml-1">Select Date</label>
             <input
               type="date"
               name="date"
               min={today}
-              className="w-full border border-white/20 rounded-md p-2 text-sm sm:text-base bg-surface text-white focus:outline-none focus:border-primary"
+              className="w-full border border-white/[0.06] rounded-xl p-3.5 text-sm bg-white/[0.03] text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               onChange={handleChange}
               value={formData.date}
               required
@@ -144,10 +144,10 @@ const AppointmentForm = () => {
           </div>
 
           <div>
-            <label className="block text-gray-300 text-sm sm:text-base mb-1">Select Time Slot</label>
+            <label className="block text-gray-400 text-xs font-medium mb-1.5 ml-1">Select Time Slot</label>
             <select
               name="slotId"
-              className="w-full border border-white/20 rounded-md p-2 text-sm sm:text-base bg-surface text-white focus:outline-none focus:border-primary"
+              className="w-full border border-white/[0.06] rounded-xl p-3.5 text-sm bg-white/[0.03] text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               onChange={handleChange}
               value={formData.slotId}
               required
@@ -161,7 +161,7 @@ const AppointmentForm = () => {
 
           <button
             type="submit"
-            className="w-full bg-primary text-white py-2 rounded-md font-semibold hover:bg-primary/80 disabled:bg-gray-600 text-sm sm:text-base transition-colors"
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-medium text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             disabled={!formData.slotId}
           >
             {loading ? "Processing..." : "Book Appointment"}
@@ -169,11 +169,11 @@ const AppointmentForm = () => {
         </form>
       </div>
 
-      <div className="hidden md:block md:w-1/2 lg:flex lg:w-1/2 justify-center items-center">
+      <div className="hidden md:flex md:w-1/2 lg:w-1/2 justify-center items-center">
         <img
           src="../src/assets/patientform.png"
           alt="Doctor Consultation"
-          className="w-full max-w-sm lg:max-w-md rounded-lg drop-shadow-2xl opacity-80 hover:opacity-100 transition-opacity duration-300"
+          className="w-full max-w-sm lg:max-w-md rounded-2xl opacity-70 hover:opacity-90 transition-opacity duration-300"
         />
       </div>
     </div>

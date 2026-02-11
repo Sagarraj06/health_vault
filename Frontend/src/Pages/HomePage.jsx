@@ -10,19 +10,13 @@ import MedicalLandingPage from '../components/HomePage/MedicalLandingPage'
 
 const HomePage = () => {
   return (
-    <div>
-
-
-<HeroSection/>
-<MedicalServices/>
-<HealthcareHeader/>
-<SpecialistCard/>
-<TeamSection/>
-<Footer/>
-
-
-
-
+    <div className="min-h-screen">
+      <HeroSection/>
+      <MedicalServices/>
+      <HealthcareHeader/>
+      <SpecialistCard/>
+      <TeamSection/>
+      <Footer/>
     </div>
   )
 }

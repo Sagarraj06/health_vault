@@ -4,7 +4,7 @@ import { CalendarCheck, Clock, HeartPulse, Stethoscope } from "lucide-react";
 
 const Header = () => {
   return (
-    <section className="flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 py-8 sm:py-12 md:py-16 bg-dark overflow-hidden">
+    <section className="flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 pt-28 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
       <div className="flex flex-col lg:flex-row items-center max-w-6xl w-full lg:gap-16 xl:gap-24">
         {/* Text Content */}
         <div className="lg:w-1/2 text-left z-10">
@@ -12,7 +12,7 @@ const Header = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-primary text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-thin mb-4 sm:mb-6 leading-snug lg:leading-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 sm:mb-6 leading-tight"
           >
             Book. Confirm. Stay Healthy
           </motion.h1>
@@ -20,7 +20,7 @@ const Header = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-gray-300 text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 leading-relaxed lg:leading-loose"
+            className="text-gray-400 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 leading-relaxed"
           >
             Schedule doctor appointments in seconds – hassle-free booking, instant confirmations, and seamless healthcare access with Health Vault!
           </motion.p>

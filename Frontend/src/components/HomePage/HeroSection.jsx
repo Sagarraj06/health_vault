@@ -4,40 +4,49 @@ import { Activity, Shield, Database, Heart, Stethoscope } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="relative flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 py-16 sm:py-24 overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-
+    <section className="relative flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 pt-32 pb-16 sm:pt-36 sm:pb-24 overflow-hidden">
       <div className="relative z-10 flex flex-col lg:flex-row items-center max-w-7xl w-full lg:gap-16 xl:gap-24">
         {/* Text Content */}
         <div className="lg:w-1/2 text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            <span className="text-primary text-xs font-medium tracking-wide uppercase">AI-Powered Platform</span>
+          </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-[1.1] tracking-tight"
           >
-            Effortless <span className="text-gradient">Healthcare</span> Management
+            Effortless{" "}
+            <span className="text-gradient">Healthcare</span>
+            <br />
+            Management
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-gray-300 text-lg sm:text-xl mb-8 leading-relaxed"
+            className="text-gray-400 text-base sm:text-lg mb-8 leading-relaxed max-w-lg"
           >
-            Securely store, access & manage medical records with <span className="text-primary font-semibold">Health Vault</span>. Your health data, reimagined for the future.
+            Securely store, access & manage medical records with{" "}
+            <span className="text-white font-medium">Health Vault</span>. Your health data, reimagined for the future.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex space-x-4"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-wrap gap-3"
           >
-            <button className="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-lg hover:shadow-primary/50 transition-transform transform hover:scale-105">
+            <button className="px-6 py-3 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:bg-primary/90 transition-all duration-300">
               Get Started
             </button>
-            <button className="px-8 py-3 rounded-full border border-primary text-primary font-bold hover:bg-primary/10 transition-colors">
+            <button className="px-6 py-3 rounded-xl border border-white/10 text-gray-300 font-medium text-sm hover:bg-white/[0.04] hover:text-white transition-all duration-300">
               Learn More
             </button>
           </motion.div>
@@ -45,9 +54,9 @@ const HeroSection = () => {
 
         {/* Animated Icon Composition */}
         <div className="lg:w-1/2 flex justify-center mt-12 lg:mt-0 relative">
-          <div className="relative w-72 h-72 sm:w-96 sm:h-96">
+          <div className="relative w-72 h-72 sm:w-80 sm:h-80">
             {/* Background Glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-secondary/30 blur-[80px] rounded-full" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 to-accent/10 blur-[100px] rounded-full" />
 
             {/* Central Activity Icon */}
             <motion.div
@@ -61,8 +70,8 @@ const HeroSection = () => {
               }}
               className="absolute inset-0 flex items-center justify-center z-10"
             >
-              <div className="bg-surface/80 backdrop-blur-md p-10 rounded-[2.5rem] border border-white/10 shadow-2xl shadow-primary/20 relative">
-                <Activity size={100} className="text-primary" />
+              <div className="bg-surface-elevated/80 backdrop-blur-md p-8 rounded-3xl border border-white/[0.08] shadow-2xl shadow-primary/10 relative">
+                <Activity size={80} className="text-primary" />
                 <motion.div
                   animate={{ opacity: [0, 1, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -77,19 +86,19 @@ const HeroSection = () => {
               transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0"
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-10">
-                <div className="bg-surface/90 p-4 rounded-2xl border border-white/10 shadow-lg transform -rotate-12">
-                  <Shield size={32} className="text-secondary" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-10">
+                <div className="bg-surface-elevated/90 p-3 rounded-xl border border-white/[0.08] shadow-lg">
+                  <Shield size={28} className="text-secondary" />
                 </div>
               </div>
               <div className="absolute bottom-10 right-10">
-                <div className="bg-surface/90 p-4 rounded-2xl border border-white/10 shadow-lg transform rotate-12">
-                  <Database size={32} className="text-accent" />
+                <div className="bg-surface-elevated/90 p-3 rounded-xl border border-white/[0.08] shadow-lg">
+                  <Database size={28} className="text-accent" />
                 </div>
               </div>
               <div className="absolute bottom-10 left-10">
-                <div className="bg-surface/90 p-4 rounded-2xl border border-white/10 shadow-lg transform -rotate-12">
-                  <Stethoscope size={32} className="text-green-400" />
+                <div className="bg-surface-elevated/90 p-3 rounded-xl border border-white/[0.08] shadow-lg">
+                  <Stethoscope size={28} className="text-emerald-400" />
                 </div>
               </div>
             </motion.div>

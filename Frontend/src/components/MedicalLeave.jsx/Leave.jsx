@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from "react";
 import { api } from "../../axios.config.js";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +14,7 @@ const Leave = () => {
     supportingDocuments: null,
   });
   const [healthRecords, setHealthRecords] = useState([]);
+  const navigate = useNavigate(); // Declare the navigate variable
 
   useEffect(() => {
     const fetchHealthRecords = async () => {
@@ -68,65 +71,65 @@ const Leave = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-dark p-4 md:p-8">
-      <h2 className="text-3xl md:text-5xl font-bold text-primary mb-6 md:mb-8 text-center">
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 text-center text-balance">
         Medical Leave Form
       </h2>
-      <p className="text-gray-300 text-lg md:text-xl mb-4 md:mb-6 text-center">
-        Apply for medical leave with ease!
+      <p className="text-gray-400 text-base sm:text-lg mb-6 text-center max-w-xl leading-relaxed">
+        Apply for medical leave with ease. Fill in the details below.
       </p>
-      <div className="glass-card rounded-lg shadow-lg p-6 md:p-10 w-full max-w-lg md:max-w-4xl flex flex-col gap-6 border border-white/10">
+      <div className="glass-card p-6 md:p-10 w-full max-w-2xl border border-white/[0.06]">
         <form
-          className="space-y-4 md:space-y-6 text-lg md:text-xl"
+          className="flex flex-col gap-5"
           onSubmit={handleSubmit}
         >
-          <p className="text-red-400 font-semibold text-sm">* indicates required fields</p>
+          <p className="text-red-400/70 text-xs">* indicates required fields</p>
 
           <div>
-            <label className="block text-gray-300 font-semibold">
+            <label className="block text-gray-300 text-sm font-medium mb-1.5">
               From Date <span className="text-red-400">*</span>
             </label>
             <input
               type="date"
               name="fromDate"
-              className="w-full border border-white/20 rounded-md p-3 md:p-4 text-white bg-surface text-lg md:text-xl focus:outline-none focus:border-primary"
+              className="w-full border border-white/[0.06] rounded-xl p-3 text-white bg-white/[0.03] text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               onChange={handleChange}
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-300 font-semibold">
+            <label className="block text-gray-300 text-sm font-medium mb-1.5">
               To Date <span className="text-red-400">*</span>
             </label>
             <input
               type="date"
               name="toDate"
-              className="w-full border border-white/20 rounded-md p-3 md:p-4 text-white bg-surface text-lg md:text-xl focus:outline-none focus:border-primary"
+              className="w-full border border-white/[0.06] rounded-xl p-3 text-white bg-white/[0.03] text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               onChange={handleChange}
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-300 font-semibold">
+            <label className="block text-gray-300 text-sm font-medium mb-1.5">
               Reason for Leave <span className="text-red-400">*</span>
             </label>
             <textarea
               name="reason"
-              placeholder="Reason for leave"
-              className="w-full border border-white/20 rounded-md p-3 md:p-4 text-white bg-surface text-lg md:text-xl h-24 md:h-32 focus:outline-none focus:border-primary placeholder-gray-500"
+              placeholder="Describe the reason for your leave"
+              className="w-full border border-white/[0.06] rounded-xl p-3 text-white bg-white/[0.03] text-sm h-28 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 placeholder-gray-500 transition-all resize-none"
               onChange={handleChange}
               required
-            ></textarea>
+            />
           </div>
 
           <div>
-            <label className="block text-gray-300 font-semibold">
+            <label className="block text-gray-300 text-sm font-medium mb-1.5">
               Health Record <span className="text-red-400">*</span>
             </label>
             <select
               name="healthRecordId"
-              className="w-full border border-white/20 rounded-md p-3 md:p-4 text-white bg-surface text-lg md:text-xl focus:outline-none focus:border-primary"
+              className="w-full border border-white/[0.06] rounded-xl p-3 text-white bg-white/[0.03] text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               onChange={handleChange}
               value={formData.healthRecordId}
               required
@@ -148,14 +151,14 @@ const Leave = () => {
           </div>
 
           <div>
-            <label className="block text-gray-300 font-semibold">
-              Supporting Documents (if any)
+            <label className="block text-gray-300 text-sm font-medium mb-1.5">
+              Supporting Documents (optional)
             </label>
             <input
               type="file"
               name="supportingDocuments"
               multiple
-              className="w-full border border-white/20 rounded-md p-3 md:p-4 text-gray-300 bg-surface text-lg md:text-xl focus:outline-none focus:border-primary"
+              className="w-full border border-white/[0.06] rounded-xl p-3 text-gray-300 bg-white/[0.03] text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-primary/10 file:text-primary"
               onChange={(e) =>
                 setFormData({ ...formData, supportingDocuments: e.target.files })
               }
@@ -164,9 +167,9 @@ const Leave = () => {
 
           <button
             type="submit"
-            className="w-full bg-primary text-white py-3 md:py-4 rounded-md text-lg md:text-xl font-semibold hover:bg-primary/80 transition-colors"
+            className="w-full bg-primary text-white py-3 rounded-xl text-sm font-medium hover:bg-primary/80 transition-all btn-animated mt-2"
           >
-            Submit
+            Submit Application
           </button>
         </form>
       </div>

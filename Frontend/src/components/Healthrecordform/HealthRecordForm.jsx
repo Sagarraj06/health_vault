@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../axios.config';
 import { useNavigate } from "react-router-dom";
@@ -103,7 +105,7 @@ const HealthRecordForm = () => {
   return (
     <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-12">
       <div className="glass-card p-6 sm:p-8 animate-fade-in">
-        <h1 className="text-3xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+        <h1 className="text-2xl font-bold text-center mb-8 text-white">
           Health Record Form
         </h1>
         {message && (
@@ -122,7 +124,7 @@ const HealthRecordForm = () => {
               name="doctorId"
               value={formData.doctorId}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white focus:outline-none focus:border-primary transition-all duration-300"
+              className="w-full px-4 py-3 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
               required={!formData.isManualUpload}
             >
               <option value="" className="bg-dark">-- Select a doctor --</option>
@@ -146,7 +148,7 @@ const HealthRecordForm = () => {
               required
               placeholder="Enter diagnosis details"
               rows="3"
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
+              className="w-full px-4 py-3 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
             ></textarea>
           </div>
           {/* Treatment */}
@@ -161,7 +163,7 @@ const HealthRecordForm = () => {
               onChange={handleChange}
               placeholder="Enter treatment details"
               rows="3"
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
+              className="w-full px-4 py-3 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
             ></textarea>
           </div>
           {/* Prescription */}
@@ -176,7 +178,7 @@ const HealthRecordForm = () => {
               onChange={handleChange}
               placeholder="Enter prescription details"
               rows="3"
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
+              className="w-full px-4 py-3 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
             ></textarea>
           </div>
           {/* Date */}
@@ -190,7 +192,7 @@ const HealthRecordForm = () => {
               name="date"
               value={formData.date}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white focus:outline-none focus:border-primary transition-all duration-300"
+              className="w-full px-4 py-3 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
             />
           </div>
           {/* Manual Upload Checkbox */}
@@ -222,7 +224,7 @@ const HealthRecordForm = () => {
                   onChange={handleChange}
                   required={formData.isManualUpload}
                   placeholder="Enter external doctor's name"
-                  className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
+                  className="w-full px-4 py-3 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
                 />
               </div>
               <div>
@@ -237,7 +239,7 @@ const HealthRecordForm = () => {
                   onChange={handleChange}
                   required={formData.isManualUpload}
                   placeholder="Enter external hospital/clinic name"
-                  className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
+                  className="w-full px-4 py-3 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
                 />
               </div>
             </div>
@@ -259,7 +261,7 @@ const HealthRecordForm = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 px-6 btn-animated bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-lg shadow-lg"
+            className="w-full py-3 px-6 btn-animated bg-primary text-white font-medium rounded-xl text-sm"
           >
             Submit Record
           </button>

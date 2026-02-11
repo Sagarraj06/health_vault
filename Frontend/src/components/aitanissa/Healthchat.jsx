@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ai_api } from "../../axios.config.js";
 
@@ -65,7 +67,7 @@ const Healthchat = () => {
             href={matches[index].substring(1, matches[index].length - 1)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-emerald-600 underline font-semibold hover:text-emerald-800 transition-colors"
+            className="text-emerald-400 underline font-semibold hover:text-emerald-300 transition-colors"
           >
             View Attachment
           </a>

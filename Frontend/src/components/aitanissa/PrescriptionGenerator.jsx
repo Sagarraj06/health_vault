@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from "react";
 import { FileText, CheckCircle, Plus, RefreshCw } from "lucide-react";
 import jsPDF from "jspdf";
@@ -234,9 +236,9 @@ const PrescriptionGenerator = () => {
                   className="block w-full rounded-md border border-white/20 bg-surface/50 text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2"
                   disabled={loadingAppointments}
                 >
-                  <option value="" className="text-gray-800">-- Select an appointment --</option>
+                  <option value="" className="bg-dark text-white">-- Select an appointment --</option>
                   {appointments.map((app) => (
-                    <option key={app._id} value={app._id} className="text-gray-800">
+                    <option key={app._id} value={app._id} className="bg-dark text-white">
                       {app.studentId?.name} -{" "}
                       {new Date(app.slotDateTime).toLocaleDateString()}{" "}
                       {new Date(app.slotDateTime).toLocaleTimeString([], {

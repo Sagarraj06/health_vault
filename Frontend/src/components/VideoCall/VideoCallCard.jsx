@@ -1,65 +1,79 @@
-import React from 'react';
+'use client';
 
-const VideoCallCard = ({ doctorImage, decorationImage }) => {
+import React from 'react';
+import { Video, Clock, Shield, Star } from 'lucide-react';
+
+const VideoCallCard = () => {
   const handleScheduleSession = () => {
-    window.location.href = "https://meet.jit.si/KalSmithMathMentorRoom2025"; // Replace with your actual Daily.co room link
+    window.location.href = "https://meet.jit.si/KalSmithMathMentorRoom2025";
   };
+
   return (
-    <div className="container mx-auto p-6 max-w-5xl bg-dark min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-3xl flex flex-col md:flex-row items-center justify-between gap-12 p-6 glass-card shadow-lg rounded-xl border border-white/10">
-        {/* Doctor Profile Section */}
-        <div className="flex flex-col items-center text-center md:text-left md:items-start">
-          {/* Doctor Image */}
-          <div className="mb-6">
-            <div className="w-52 h-52 overflow-hidden rounded-xl shadow-md border border-white/10">
-              {doctorImage ? (
-                <img
-                  src="../src/assets/video call 2.png"
-                  alt="Doctor"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img
-                  src="../src/assets/video call 2.png"
-                  alt="Doctor placeholder"
-                  className="w-full h-full object-cover"
-                />
-              )}
+    <section className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-16 bg-dark">
+      <div className="max-w-4xl mx-auto">
+        <div className="glass-card p-6 sm:p-8 lg:p-10">
+          <div className="flex flex-col md:flex-row gap-8 items-center">
+            {/* Doctor Profile */}
+            <div className="flex flex-col items-center text-center md:items-start md:text-left flex-1">
+              {/* Avatar Placeholder */}
+              <div className="w-28 h-28 rounded-2xl bg-primary/10 border border-white/[0.06] flex items-center justify-center mb-6 overflow-hidden">
+                <div className="w-full h-full bg-primary/5 flex items-center justify-center">
+                  <Video size={40} className="text-primary" />
+                </div>
+              </div>
+
+              <h2 className="text-xl font-bold text-white mb-1">Mr. Kal Smith</h2>
+              <p className="text-primary text-sm font-medium mb-3">Bone Specialist</p>
+              <p className="text-gray-400 text-xs leading-relaxed mb-6">
+                Graduated from Italy School of Medical Science. Specializing in orthopedic care and bone health.
+              </p>
+
+              {/* Stats */}
+              <div className="flex gap-4 mb-6">
+                <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                  <Star size={14} className="text-yellow-400" />
+                  <span>4.9 Rating</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                  <Clock size={14} className="text-primary" />
+                  <span>10+ Years</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                  <Shield size={14} className="text-emerald-400" />
+                  <span>Verified</span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleScheduleSession}
+                className="w-full bg-primary text-white font-medium py-3 rounded-xl hover:bg-primary/80 transition-all btn-animated text-sm"
+              >
+                Start Video Consultation
+              </button>
+            </div>
+
+            {/* Info Cards */}
+            <div className="flex-1 flex flex-col gap-3 w-full">
+              {[
+                { icon: Video, title: "HD Video Quality", desc: "Crystal clear video consultations with adaptive quality" },
+                { icon: Shield, title: "End-to-End Encrypted", desc: "Your health conversations are completely private and secure" },
+                { icon: Clock, title: "Flexible Scheduling", desc: "Book sessions at your convenience, available 24/7" },
+              ].map((item, index) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:border-white/[0.08] transition-colors">
+                  <div className="bg-primary/10 p-2 rounded-lg shrink-0">
+                    <item.icon size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-white text-sm font-medium mb-0.5">{item.title}</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Profile Card */}
-          <div className="bg-surface p-6 rounded-lg shadow-md w-full max-w-sm border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-2">MR. KAL SMITH</h2>
-            <p className="text-lg font-medium text-gray-300 mb-4">BONE SPECIALIST</p>
-            <p className="text-sm text-gray-400 mb-6 leading-relaxed">
-              GRADUATED FROM ITALY SCHOOL<br />
-              OF MEDICAL SCIENCE
-            </p>
-            <button onClick={handleScheduleSession} className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary/80 transition-all shadow-md">
-              See Your Doctor !
-            </button>
-          </div>
-        </div>
-
-        {/* Decoration Image */}
-        <div className="relative w-full h-full flex-shrink-0">
-          {decorationImage ? (
-            <img
-              src={decorationImage}
-              alt="Decoration"
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <img
-              src="../src/assets/form design.png"
-              alt="Decoration placeholder"
-              className="w-full h-full object-contain opacity-80"
-            />
-          )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

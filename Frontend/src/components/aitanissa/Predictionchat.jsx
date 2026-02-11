@@ -46,7 +46,7 @@ const Predictionchat = () => {
         .filter(symptom => symptom !== '');
 
       // Make API call
-      const res = await ai_api.post('/disease_prediction', {
+      const res = await ai_api.post('/ai/disease_prediction', {
         symptoms: symptomsArray
       });
 

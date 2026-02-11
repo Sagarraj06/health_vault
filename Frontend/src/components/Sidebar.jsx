@@ -75,52 +75,58 @@ const Sidebar = ({ role }) => {
     return (
         <div
             className={`${isCollapsed ? "w-20" : "w-64"
-                } h-screen bg-surface/30 backdrop-blur-md border-r border-white/10 transition-all duration-300 flex flex-col sticky top-0 left-0 z-50`}
+                } h-screen bg-dark/80 backdrop-blur-xl border-r border-white/[0.06] transition-all duration-300 flex flex-col sticky top-0 left-0 z-50`}
         >
             {/* Toggle Button */}
             <button
                 onClick={toggleSidebar}
-                className="absolute -right-3 top-10 bg-primary text-white p-1 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-50"
+                className="absolute -right-3 top-10 bg-surface-elevated text-gray-300 p-1.5 rounded-lg shadow-lg border border-white/[0.06] hover:text-primary transition-colors z-50"
+                aria-label="Toggle sidebar"
             >
-                {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
 
             {/* Logo Area */}
-            <div className="p-4 flex items-center justify-center border-b border-white/10 h-20">
+            <div className="p-4 flex items-center justify-center border-b border-white/[0.06] h-16">
                 {isCollapsed ? (
-                    <Activity className="text-primary w-8 h-8" />
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">H</span>
+                    </div>
                 ) : (
-                    <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary whitespace-nowrap">
-                        HealthVault
-                    </h2>
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">H</span>
+                        </div>
+                        <span className="text-base font-semibold text-white tracking-tight whitespace-nowrap">HealthVault</span>
+                    </div>
                 )}
             </div>
 
             {/* Scrollable Content (Nav + Logout) */}
-            <div className="flex-1 overflow-y-auto flex flex-col">
-                <nav className="space-y-2 px-3 py-4">
+            <div className="flex-1 overflow-y-auto flex flex-col custom-scrollbar">
+                <nav className="flex flex-col gap-1 px-3 py-4">
                     {currentMenu.map((item) => {
                         const isActive = location.pathname === item.path;
                         return (
                             <Link
                                 key={item.name}
                                 to={item.path}
-                                className={`flex items-center px-3 py-3 rounded-xl transition-all duration-300 group ${isActive
-                                    ? "bg-primary text-white shadow-lg shadow-primary/20"
-                                    : "text-gray-400 hover:bg-white/5 hover:text-white"
+                                className={`flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative ${isActive
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-gray-400 hover:bg-white/[0.04] hover:text-white"
                                     }`}
                             >
                                 <item.icon
-                                    className={`w-6 h-6 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"
+                                    className={`w-5 h-5 shrink-0 transition-colors duration-200 ${isActive ? "text-primary" : "text-gray-500 group-hover:text-white"
                                         }`}
                                 />
                                 {!isCollapsed && (
-                                    <span className="ml-3 font-medium whitespace-nowrap">
+                                    <span className="ml-3 text-sm font-medium whitespace-nowrap">
                                         {item.name}
                                     </span>
                                 )}
                                 {isCollapsed && (
-                                    <div className="absolute left-full rounded-md px-2 py-1 ml-6 bg-gray-900 text-white text-sm invisible opacity-0 -translate-x-3 transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap z-50">
+                                    <div className="absolute left-full rounded-lg px-2.5 py-1.5 ml-4 bg-surface-elevated text-white text-xs font-medium invisible opacity-0 -translate-x-3 transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap z-50 border border-white/[0.06] shadow-xl">
                                         {item.name}
                                     </div>
                                 )}
@@ -130,14 +136,14 @@ const Sidebar = ({ role }) => {
                 </nav>
 
                 {/* Footer / Logout */}
-                <div className="p-2 mt-auto border-t border-white/10">
+                <div className="p-3 mt-auto border-t border-white/[0.06]">
                     <button
                         onClick={handleLogout}
-                        className={`flex items-center w-full px-3 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 group ${isCollapsed ? "justify-center" : ""
+                        className={`flex items-center w-full px-3 py-2.5 rounded-xl text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group ${isCollapsed ? "justify-center" : ""
                             }`}
                     >
-                        <LogOut className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                        {!isCollapsed && <span className="ml-3 font-medium">Logout</span>}
+                        <LogOut className="w-5 h-5 group-hover:scale-105 transition-transform" />
+                        {!isCollapsed && <span className="ml-3 text-sm font-medium">Logout</span>}
                     </button>
                 </div>
             </div>

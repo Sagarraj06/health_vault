@@ -43,15 +43,12 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black p-8 relative overflow-hidden">
-      {/* Background Accents */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-secondary/20 via-black to-black"></div>
-
-      <div className="relative z-10 bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-2xl shadow-2xl max-w-4xl w-full flex flex-col md:flex-row items-center animate-fade-in-up">
+    <div className="flex items-center justify-center min-h-screen p-6 pt-24 relative overflow-hidden">
+      <div className="relative z-10 glass-card p-8 md:p-10 max-w-4xl w-full flex flex-col md:flex-row items-center animate-fade-in-up">
 
         {/* Illustration Section */}
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10">
-          <h1 className="text-5xl font-bold text-secondary mb-8 tracking-wider">Log In</h1>
+        <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/[0.06]">
+          <h1 className="text-4xl font-bold text-white mb-8 tracking-tight">Log In</h1>
 
           <div className="relative w-64 h-64">
             {/* Background Glow */}
@@ -113,54 +110,56 @@ export default function Login() {
         </div>
 
         {/* Form Section */}
-        <div className="w-full md:w-1/2 p-6 md:pl-12">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="w-full md:w-1/2 p-6 md:pl-10">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <label className="text-gray-400 text-sm ml-1">Email Address</label>
+              <label className="text-gray-400 text-xs font-medium ml-1 mb-1.5 block">Email Address</label>
               <input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full mt-2 p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                 required
               />
             </div>
 
             <div>
-              <label className="text-gray-400 text-sm ml-1">Password</label>
+              <label className="text-gray-400 text-xs font-medium ml-1 mb-1.5 block">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full mt-2 p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all pr-12"
+                  className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all pr-12"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors mt-1"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                  aria-label="Toggle password visibility"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm text-center">
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
                 {error}
               </div>
             )}
 
-            <button type="submit" className="w-full mt-6 p-4 bg-secondary text-white font-bold rounded-xl shadow-lg shadow-secondary/25 hover:bg-pink-600 hover:shadow-secondary/50 hover:scale-[1.02] transition-all duration-300">
+            <button type="submit" className="w-full p-3.5 bg-primary text-white font-medium text-sm rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 hover:scale-[1.01] transition-all duration-300">
               Login
             </button>
           </form>
 
-          <p className="mt-6 text-center text-gray-400 text-sm">
-            Don't have an account? <span className="text-secondary cursor-pointer hover:underline" onClick={() => navigate('/signup')}>Sign Up</span>
+          <p className="mt-6 text-center text-gray-500 text-xs">
+            {"Don't have an account?"}{" "}
+            <span className="text-primary cursor-pointer hover:underline font-medium" onClick={() => navigate('/signup')}>Sign Up</span>
           </p>
         </div>
       </div>

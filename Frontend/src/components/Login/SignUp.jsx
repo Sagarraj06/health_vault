@@ -46,15 +46,12 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black p-8 relative overflow-hidden">
-      {/* Background Accents */}
-      <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/20 via-black to-black"></div>
-
-      <div className="relative z-10 bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-2xl shadow-2xl max-w-5xl w-full flex flex-col md:flex-row items-center animate-fade-in-up">
+    <div className="flex items-center justify-center min-h-screen p-6 pt-24 relative overflow-hidden">
+      <div className="relative z-10 glass-card p-8 md:p-10 max-w-5xl w-full flex flex-col md:flex-row items-center animate-fade-in-up">
 
         {/* Illustration Section */}
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10">
-          <h1 className="text-5xl font-bold text-secondary mb-12 tracking-wider">Sign Up</h1>
+        <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/[0.06]">
+          <h1 className="text-4xl font-bold text-white mb-12 tracking-tight">Sign Up</h1>
 
           <div className="relative w-64 h-64">
             {/* Background Glow */}
@@ -108,13 +105,13 @@ export default function SignUp() {
         </div>
 
         {/* Form Section */}
-        <div className="w-full md:w-1/2 p-6 md:pl-12 max-h-[80vh] overflow-y-auto custom-scrollbar">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="w-full md:w-1/2 p-6 md:pl-10 max-h-[80vh] overflow-y-auto custom-scrollbar">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
             {/* Role Selection */}
-            <div className="flex justify-center space-x-4 mb-6 bg-black/30 p-2 rounded-xl border border-white/10">
+            <div className="flex justify-center gap-1 mb-2 bg-white/[0.03] p-1.5 rounded-xl border border-white/[0.06]">
               {["student", "doctor", "admin"].map((r) => (
-                <label key={r} className={`cursor-pointer px-4 py-2 rounded-lg transition-all ${role === r ? 'bg-secondary text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>
+                <label key={r} className={`cursor-pointer px-4 py-2 rounded-lg text-sm transition-all ${role === r ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:text-white'}`}>
                   <input
                     type="radio"
                     name="role"
@@ -127,13 +124,13 @@ export default function SignUp() {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               <input
                 type="text"
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                 required
               />
               <input
@@ -141,7 +138,7 @@ export default function SignUp() {
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                 required
               />
               <div className="relative">
@@ -150,15 +147,16 @@ export default function SignUp() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all pr-12"
+                  className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all pr-12"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                  aria-label="Toggle password visibility"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               <input
@@ -166,23 +164,23 @@ export default function SignUp() {
                 placeholder="Phone Number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <input
                   type="date"
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                  className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                 />
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                  className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                 >
-                  <option value="Male" className="bg-black">Male</option>
-                  <option value="Female" className="bg-black">Female</option>
-                  <option value="Other" className="bg-black">Other</option>
+                  <option value="Male" className="bg-dark">Male</option>
+                  <option value="Female" className="bg-dark">Female</option>
+                  <option value="Other" className="bg-dark">Other</option>
                 </select>
               </div>
 
@@ -192,25 +190,26 @@ export default function SignUp() {
                   placeholder="Specialization"
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                  className="w-full p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                   required
                 />
               )}
             </div>
 
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm text-center">
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
                 {error}
               </div>
             )}
 
-            <button type="submit" className="w-full mt-6 p-4 bg-secondary text-white font-bold rounded-xl shadow-lg shadow-secondary/25 hover:bg-pink-600 hover:shadow-secondary/50 hover:scale-[1.02] transition-all duration-300">
+            <button type="submit" className="w-full p-3.5 bg-primary text-white font-medium text-sm rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 hover:scale-[1.01] transition-all duration-300">
               Create Account
             </button>
           </form>
 
-          <p className="mt-6 text-center text-gray-400 text-sm">
-            Already have an account? <span className="text-secondary cursor-pointer hover:underline" onClick={() => navigate('/login')}>Log In</span>
+          <p className="mt-6 text-center text-gray-500 text-xs">
+            Already have an account?{" "}
+            <span className="text-primary cursor-pointer hover:underline font-medium" onClick={() => navigate('/login')}>Log In</span>
           </p>
         </div>
       </div>

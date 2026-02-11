@@ -4,26 +4,27 @@ import { ShieldCheck, Database, Activity, Lock } from "lucide-react";
 
 const HealthcareHeader = () => {
   return (
-    <section className="flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 py-8 sm:py-12 md:py-16 bg-dark overflow-hidden">
+    <section className="flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 py-16 sm:py-20 md:py-24 overflow-hidden">
       <div className="flex flex-col lg:flex-row items-center max-w-6xl w-full lg:gap-16 xl:gap-24">
         {/* Text Content */}
         <div className="lg:w-1/2 text-left z-10">
-          <motion.h1
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-primary font-light leading-relaxed tracking-wide mb-6"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-6"
           >
-            Effortless Student Healthcare Management – Securely Store, Access & Manage Medical Records with Health Vault.
-          </motion.h1>
+            Effortless Student Healthcare{" "}
+            <span className="text-primary">Management</span>
+          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-300 font-medium leading-relaxed tracking-wide"
+            className="text-sm sm:text-base lg:text-lg text-gray-400 leading-relaxed"
           >
-            EXPERIENCE CUTTING-EDGE TREATMENTS DELIVERED WITH A HUMAN TOUCH. OUR TEAM ENSURES PERSONALIZED CARE TAILORED TO YOUR NEEDS, BLENDING TECHNOLOGY AND EMPATHY FOR THE BEST OUTCOMES.
+            Experience cutting-edge treatments delivered with a human touch. Our team ensures personalized care tailored to your needs, blending technology and empathy for the best outcomes.
           </motion.p>
         </div>
 

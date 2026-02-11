@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { 
   WalletIcon, 
@@ -44,25 +46,25 @@ const PaymentGateway = () => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-green-100 to-green-200 flex items-center justify-center p-2">
-          <div className="w-full max-w-[1400px] h-[95vh] bg-white rounded-2xl shadow-2xl grid grid-cols-12 gap-4 p-4">
+        <div className="min-h-screen w-full bg-dark flex items-center justify-center p-4">
+          <div className="w-full max-w-[1400px] glass-card grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 sm:p-6">
             {/* Left Payment Section */}
-            <div className="col-span-4 bg-green-50 rounded-xl p-6 space-y-6">
+            <div className="lg:col-span-4 bg-white/[0.03] rounded-xl p-5 sm:p-6 flex flex-col gap-5 border border-white/[0.06]">
               <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold text-green-800 flex items-center">
-                  <CreditCardIcon className="mr-3 text-green-600" />
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <CreditCardIcon className="mr-2 text-primary" size={20} />
                   Payment
                 </h2>
-                <div className="text-green-600 font-semibold">
+                <div className="text-primary text-sm font-medium">
                   Medical App
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="bg-white p-4 rounded-xl shadow-md">
+              <div className="flex flex-col gap-4">
+                <div className="bg-white/[0.04] p-4 rounded-xl border border-white/[0.06]">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-green-700">Total Amount</h3>
-                    <span className="text-2xl font-bold text-green-800">
+                    <h3 className="text-sm font-medium text-gray-400">Total Amount</h3>
+                    <span className="text-2xl font-bold text-white">
                       ${paymentAmount.toFixed(2)}
                     </span>
                   </div>
@@ -77,7 +79,7 @@ const PaymentGateway = () => {
             </div>
 
             {/* Right Transaction Section */}
-            <div className="col-span-8 bg-green-100 rounded-xl p-6">
+            <div className="lg:col-span-8 bg-white/[0.02] rounded-xl p-5 sm:p-6 border border-white/[0.06]">
               {showQR ? (
                 <QRSection paymentAmount={paymentAmount} />
               ) : (
@@ -103,8 +105,8 @@ const WalletConnector = ({ selectedWallet, setSelectedWallet, setShowQR }) => {
   };
 
   return (
-    <div className="space-y-2">
-      <h4 className="text-lg font-semibold text-green-700">Wallet Options</h4>
+    <div className="flex flex-col gap-2">
+      <h4 className="text-sm font-semibold text-gray-300">Wallet Options</h4>
       
       {!isConnected ? (
         <>
@@ -112,15 +114,15 @@ const WalletConnector = ({ selectedWallet, setSelectedWallet, setShowQR }) => {
             <button
               key={connector.id}
               onClick={() => handleWalletConnect(connector)}
-              className={`w-full p-4 rounded-xl border-2 flex justify-between items-center 
+              className={`w-full p-3.5 rounded-xl border flex justify-between items-center transition-all
                 ${selectedWallet === 'metaMaskWallet' 
-                  ? 'border-green-600 bg-green-50' 
-                  : 'border-transparent hover:border-green-300 bg-white'
+                  ? 'border-primary/50 bg-primary/5' 
+                  : 'border-white/[0.06] hover:border-white/10 bg-white/[0.02]'
                 }`}
             >
               <div className="flex items-center">
-                <WalletIcon className="mr-3 text-green-500" />
-                <span className="font-semibold text-green-800">
+                <WalletIcon className="mr-3 text-primary" size={18} />
+                <span className="font-medium text-white text-sm">
                   {connector.name}
                 </span>
               </div>
@@ -128,15 +130,15 @@ const WalletConnector = ({ selectedWallet, setSelectedWallet, setShowQR }) => {
           ))}
         </>
       ) : (
-        <div className="bg-white p-4 rounded-xl">
+        <div className="bg-white/[0.04] p-4 rounded-xl border border-white/[0.06]">
           <div className="flex justify-between items-center">
-            <span>Connected: {address?.slice(0, 6)}...{address?.slice(-4)}</span>
+            <span className="text-gray-300 text-sm">Connected: {address?.slice(0, 6)}...{address?.slice(-4)}</span>
             <button 
               onClick={() => {
                 disconnect();
                 setShowQR(false);
               }}
-              className="text-red-500 hover:bg-red-50 p-2 rounded"
+              className="text-red-400 hover:bg-red-500/10 p-2 rounded-lg text-xs transition-colors"
             >
               Disconnect
             </button>
@@ -160,26 +162,26 @@ const QRSection = ({ paymentAmount }) => {
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-center space-y-6">
-      <h2 className="text-2xl font-bold text-green-800">Scan to Pay</h2>
-      <div className="bg-white p-6 rounded-xl shadow-lg">
+    <div className="h-full flex flex-col items-center justify-center gap-6">
+      <h2 className="text-xl font-bold text-white">Scan to Pay</h2>
+      <div className="bg-white p-6 rounded-2xl shadow-lg">
         <QRCode 
           value={paymentDetails} 
-          size={300} 
+          size={250} 
           level={'H'} 
           includeMargin={true}
-          fgColor="#15803d"  // Green color
+          fgColor="#15803d"
         />
       </div>
-      <div className="flex space-x-4">
+      <div className="flex gap-3">
         <button 
           onClick={handleCopy}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/80 transition-colors"
         >
           {copyStatus}
         </button>
         <button 
-          className="bg-green-100 text-green-800 px-4 py-2 rounded-lg hover:bg-green-200"
+          className="bg-white/[0.06] text-gray-300 px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/[0.1] transition-colors border border-white/[0.06]"
           onClick={() => window.print()}
         >
           Print QR
@@ -208,30 +210,30 @@ const TransactionSection = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-6">
-      <div className="bg-white rounded-xl p-4 shadow-md">
-        <h3 className="text-xl font-semibold text-green-700 mb-4">
-          UI Wallet Transactions
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]">
+        <h3 className="text-sm font-semibold text-white mb-4">
+          Wallet Transactions
         </h3>
         {transactions.map((transaction, index) => (
           <div 
             key={index} 
-            className="bg-green-50 p-3 rounded-lg mb-2"
+            className="bg-white/[0.03] p-3 rounded-xl mb-2 border border-white/[0.04]"
           >
             <div className="flex justify-between">
               <div>
-                <p className="font-semibold text-green-800">
+                <p className="font-medium text-white text-sm">
                   {transaction.description}
                 </p>
-                <p className="text-sm text-green-600">
+                <p className="text-xs text-gray-500">
                   {transaction.date}
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-bold text-green-800">
+                <p className="font-bold text-white text-sm">
                   {transaction.amount} {transaction.currency}
                 </p>
-                <p className="text-sm text-green-600">
+                <p className={`text-xs font-medium ${transaction.status === 'Completed' ? 'text-emerald-400' : 'text-yellow-400'}`}>
                   {transaction.status}
                 </p>
               </div>
@@ -239,17 +241,17 @@ const TransactionSection = () => {
           </div>
         ))}
       </div>
-      <div className="bg-white rounded-xl p-4 shadow-md">
-        <h3 className="text-xl font-semibold text-green-700 mb-4">
-          MetaMask Wallet Transactions
+      <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]">
+        <h3 className="text-sm font-semibold text-white mb-4">
+          MetaMask Transactions
         </h3>
-        <div className="bg-green-50 p-3 rounded-lg mb-2">
+        <div className="bg-white/[0.03] p-3 rounded-xl border border-white/[0.04]">
           <div className="flex justify-between">
             <div>
-              <p className="font-semibold text-green-800">
+              <p className="font-medium text-gray-300 text-sm">
                 Pending Connection
               </p>
-              <p className="text-sm text-green-600">
+              <p className="text-xs text-gray-500">
                 Connect wallet to view transactions
               </p>
             </div>

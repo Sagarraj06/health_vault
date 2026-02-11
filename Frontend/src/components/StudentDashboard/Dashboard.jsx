@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from "react";
 import { api } from "../../axios.config.js"; // Axios instance
 import { Link } from "react-router-dom";
@@ -254,27 +256,27 @@ const Dashboard = () => {
       <Sidebar role="student" />
 
       {/* Main Content */}
-      <div className="flex-1 p-8 transition-all duration-300">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 pt-20 sm:pt-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Dashboard</h1>
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+              <Search className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all duration-300 focus:w-64 w-48"
+                className="pl-9 pr-4 py-2 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all duration-300 focus:w-64 w-48"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
               {/* Dropdown for suggestions */}
               {suggestions.length > 0 && (
-                <div className="absolute bg-surface border border-white/10 rounded-lg mt-1 w-full z-10 shadow-xl">
+                <div className="absolute bg-surface-elevated border border-white/[0.06] rounded-xl mt-1 w-full z-10 shadow-2xl overflow-hidden">
                   {suggestions.map((item, index) => (
                     <div
                       key={index}
-                      className="px-4 py-2 hover:bg-white/10 cursor-pointer text-gray-200"
+                      className="px-4 py-2.5 hover:bg-white/[0.04] cursor-pointer text-gray-300 text-sm transition-colors"
                       onClick={() => handleSuggestionClick(item)}
                     >
                       {item}
@@ -283,12 +285,12 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
-            <Settings className="w-6 h-6 text-gray-400 hover:text-primary transition-colors cursor-pointer hover:rotate-90 duration-500" />
+            <Settings className="w-5 h-5 text-gray-500 hover:text-primary transition-colors cursor-pointer hover:rotate-90 duration-500" />
           </div>
         </div>
 
         {/* Action Cards */}
-        <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           {[
             {
               title: "Health Records",
@@ -324,17 +326,17 @@ const Dashboard = () => {
             },
           ].map((item, index) => (
             <Link to={item.route} key={index} className="block group">
-              <div className="glass-card p-6 hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden">
-                <div className={`absolute top-0 right-0 w-24 h-24 ${item.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-150 duration-500`}></div>
-                <h2 className="text-xl font-semibold mb-4 text-white relative z-10">
+              <div className="glass-card p-5 hover:scale-[1.01] hover:border-white/10 transition-all duration-300 relative overflow-hidden">
+                <div className={`absolute top-0 right-0 w-20 h-20 ${item.color} opacity-5 rounded-bl-full -mr-2 -mt-2 transition-all group-hover:scale-150 duration-500`}></div>
+                <h2 className="text-base font-semibold mb-3 text-white relative z-10">
                   {item.title}
                 </h2>
                 <button
-                  className={`flex items-center justify-center ${item.color} text-white p-4 rounded-xl shadow-md w-full mb-4 text-lg font-semibold btn-animated relative z-10`}
+                  className={`flex items-center justify-center ${item.color} text-white p-3 rounded-xl shadow-md w-full mb-3 text-sm font-medium btn-animated relative z-10`}
                 >
-                  <item.icon className="mr-2" /> {item.action}
+                  <item.icon className="mr-2 w-4 h-4" /> {item.action}
                 </button>
-                <p className="text-gray-300 text-lg font-medium bg-white/5 p-4 rounded-lg shadow-sm border border-white/5 relative z-10">
+                <p className="text-gray-400 text-xs bg-white/[0.03] p-3 rounded-lg border border-white/[0.04] relative z-10 leading-relaxed">
                   {item.history}
                 </p>
               </div>
@@ -343,85 +345,67 @@ const Dashboard = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-6 border-b border-white/10">
-          <nav className="flex space-x-6">
-            <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "leave"
-                ? "border-primary text-primary"
-                : "border-transparent text-gray-400 hover:text-primary"
-                }`}
-              onClick={() => setActiveTab("leave")}
-            >
-              Leave Applications
-            </button>
-            <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "appointments"
-                ? "border-primary text-primary"
-                : "border-transparent text-gray-400 hover:text-primary"
-                }`}
-              onClick={() => setActiveTab("appointments")}
-            >
-              My Appointments
-            </button>
-            <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "healthRecords"
-                ? "border-primary text-primary"
-                : "border-transparent text-gray-400 hover:text-primary"
-                }`}
-              onClick={() => setActiveTab("healthRecords")}
-            >
-              Health Records
-            </button>
-            <button
-              className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors duration-300 ${activeTab === "aiDiagnosis"
-                ? "border-primary text-primary"
-                : "border-transparent text-gray-400 hover:text-primary"
-                }`}
-              onClick={() => setActiveTab("aiDiagnosis")}
-            >
-              AI Diagnosis
-            </button>
+        <div className="mb-6 border-b border-white/[0.06]">
+          <nav className="flex gap-1 overflow-x-auto">
+            {[
+              { key: "leave", label: "Leave Applications" },
+              { key: "appointments", label: "My Appointments" },
+              { key: "healthRecords", label: "Health Records" },
+              { key: "aiDiagnosis", label: "AI Diagnosis" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                className={`py-2.5 px-4 text-xs font-medium border-b-2 transition-all duration-200 whitespace-nowrap ${activeTab === tab.key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-white"
+                  }`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </nav>
         </div>
 
         {/* Conditional Rendering of Sections based on Active Tab */}
         {activeTab === "leave" && (
-          <div className="glass-card p-6 mb-8 animate-fade-in">
-            <h2 className="text-lg font-semibold mb-4 text-white">
+          <div className="glass-card p-5 mb-8 animate-fade-in">
+            <h2 className="text-base font-semibold mb-4 text-white">
               Medical Leave Applications
             </h2>
             {leaveLoading ? (
-              <p>Loading leave applications...</p>
+              <p className="text-gray-400 text-sm">Loading leave applications...</p>
             ) : leaveError ? (
-              <p>{leaveError}</p>
+              <p className="text-red-400 text-sm">{leaveError}</p>
             ) : leaveApplications.length > 0 ? (
-              <table className="min-w-full bg-transparent border border-white/10 rounded-lg">
+              <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+              <table className="min-w-full">
                 <thead>
-                  <tr>
-                    <th className="px-4 py-2 border-b text-left">Sno.</th>
-                    <th className="px-4 py-2 border-b text-left">Date</th>
-                    <th className="px-4 py-2 border-b text-left">From Date</th>
-                    <th className="px-4 py-2 border-b text-left">To Date</th>
-                    <th className="px-4 py-2 border-b text-left">Diagnosis</th>
-                    <th className="px-4 py-2 border-b text-left">Status</th>
-                    <th className="px-4 py-2 border-b text-left">Actions</th>
+                  <tr className="bg-white/[0.03]">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Sno.</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">From</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">To</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Diagnosis</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-white/[0.04]">
                   {leaveApplications.map((leave, index) => (
-                    <tr key={leave._id} className="hover:bg-white/5 transition-colors">
-                      <td className="px-4 py-2 border-b">{index + 1}</td>
-                      <td className="px-4 py-2 border-b">{leave.date}</td>
-                      <td className="px-4 py-2 border-b">{leave.fromDate}</td>
-                      <td className="px-4 py-2 border-b">{leave.toDate}</td>
-                      <td className="px-4 py-2 border-b">{leave.diagnosis}</td>
-                      <td className="px-4 py-2 border-b">
+                    <tr key={leave._id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="px-4 py-3 text-sm text-gray-300">{index + 1}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{leave.date}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{leave.fromDate}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{leave.toDate}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{leave.diagnosis}</td>
+                      <td className="px-4 py-3">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${leave.status === "pending"
-                            ? "bg-yellow-500/20 text-yellow-400"
+                          className={`px-2.5 py-0.5 inline-flex text-xs font-medium rounded-lg ${leave.status === "pending"
+                            ? "bg-yellow-500/10 text-yellow-400"
                             : leave.status === "approved"
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-red-500/20 text-red-400"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-red-500/10 text-red-400"
                             }`}
                         >
                           {leave.status && typeof leave.status === "string"
@@ -429,169 +413,166 @@ const Dashboard = () => {
                             : "N/A"}
                         </span>
                       </td>
-                      <td className="px-4 py-2 border-b border-white/10">
+                      <td className="px-4 py-3">
                         <button
                           onClick={() => setSelectedLeave(leave)}
-                          className="text-primary hover:underline"
+                          className="text-primary text-sm hover:underline"
                         >
-                          View Status
+                          View
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             ) : (
-              <p>No medical leave applications found.</p>
+              <p className="text-gray-500 text-sm">No medical leave applications found.</p>
             )}
 
             {/* Modal for viewing selected leave details */}
             {selectedLeave && (
-              <div className="glass-card p-6 mb-8 mt-4 border-l-4 border-primary">
-                <h2 className="text-lg font-semibold mb-4 text-white">
+              <div className="glass-card p-5 mt-4 border-l-2 border-primary">
+                <h3 className="text-sm font-semibold mb-3 text-white">
                   Medical Leave Details
-                </h2>
-                <p>
-                  <strong>Reason:</strong> {selectedLeave.reason}
-                </p>
-                <p>
-                  <strong>Duration:</strong> {selectedLeave.fromDate} to {selectedLeave.toDate}
-                </p>
-                <p>
-                  <strong>Diagnosis:</strong> {selectedLeave.diagnosis}
-                </p>
-                <p>
-                  <strong>Doctor name:</strong> {selectedLeave.doctorName}
-                </p>
-                <p>
-                  <strong>Status:</strong>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Reason:</span> {selectedLeave.reason}</p>
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Duration:</span> {selectedLeave.fromDate} to {selectedLeave.toDate}</p>
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Diagnosis:</span> {selectedLeave.diagnosis}</p>
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Doctor:</span> {selectedLeave.doctorName}</p>
+                </div>
+                <div className="flex items-center gap-3 mt-3">
                   <span
-                    className={`ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${selectedLeave.status === "pending"
-                      ? "bg-yellow-500/20 text-yellow-400"
+                    className={`px-2.5 py-0.5 text-xs font-medium rounded-lg ${selectedLeave.status === "pending"
+                      ? "bg-yellow-500/10 text-yellow-400"
                       : selectedLeave.status === "approved"
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-red-500/20 text-red-400"
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : "bg-red-500/10 text-red-400"
                       }`}
                   >
                     {selectedLeave.status.charAt(0).toUpperCase() +
                       selectedLeave.status.slice(1)}
                   </span>
-                </p>
-                <button
-                  onClick={() => setSelectedLeave(null)}
-                  className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 btn-animated"
-                >
-                  Close
-                </button>
+                  <button
+                    onClick={() => setSelectedLeave(null)}
+                    className="text-xs text-gray-400 hover:text-white transition-colors"
+                  >
+                    Dismiss
+                  </button>
+                </div>
               </div>
             )}
           </div>
         )}
 
         {activeTab === "appointments" && (
-          <div className="glass-card p-6 mb-8 animate-fade-in">
-            <h2 className="text-lg font-semibold mb-4 text-white">
+          <div className="glass-card p-5 mb-8 animate-fade-in">
+            <h2 className="text-base font-semibold mb-4 text-white">
               My Appointments
             </h2>
             {appointmentsLoading ? (
-              <p>Loading appointments...</p>
+              <p className="text-gray-400 text-sm">Loading appointments...</p>
             ) : appointmentsError ? (
-              <p>{appointmentsError}</p>
+              <p className="text-red-400 text-sm">{appointmentsError}</p>
             ) : appointments.length > 0 ? (
-              <table className="min-w-full bg-transparent border border-white/10 rounded-lg">
+              <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+              <table className="min-w-full">
                 <thead>
-                  <tr>
-                    <th className="px-4 py-2 border-b text-left">Doctor</th>
-                    <th className="px-4 py-2 border-b text-left">Date & Time</th>
-                    <th className="px-4 py-2 border-b text-left">Status</th>
-                    <th className="px-4 py-2 border-b text-left">Prescription</th>
+                  <tr className="bg-white/[0.03]">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Doctor</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date & Time</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Prescription</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-white/[0.04]">
                   {appointments.map((appointment) => (
-                    <tr key={appointment._id || appointment.id} className="hover:bg-white/5 transition-colors">
-                      <td className="px-4 py-2 border-b border-white/10">
+                    <tr key={appointment._id || appointment.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="px-4 py-3 text-sm text-gray-300">
                         {appointment.doctorId?.name || "Not specified"}
                       </td>
-                      <td className="px-4 py-2 border-b border-white/10">
+                      <td className="px-4 py-3 text-sm text-gray-300">
                         {formatDate(appointment.slotDateTime)}
                       </td>
-                      <td className="px-4 py-2 border-b border-white/10">
+                      <td className="px-4 py-3">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs ${appointment.status === "confirmed"
-                            ? "bg-green-500/20 text-green-400"
+                          className={`px-2.5 py-0.5 rounded-lg text-xs font-medium ${appointment.status === "confirmed"
+                            ? "bg-emerald-500/10 text-emerald-400"
                             : appointment.status === "pending"
-                              ? "bg-yellow-500/20 text-yellow-400"
+                              ? "bg-yellow-500/10 text-yellow-400"
                               : appointment.status === "cancelled"
-                                ? "bg-red-500/20 text-red-400"
-                                : "bg-gray-500/20 text-gray-400"
+                                ? "bg-red-500/10 text-red-400"
+                                : "bg-gray-500/10 text-gray-400"
                             }`}
                         >
                           {appointment.status || "N/A"}
                         </span>
                       </td>
-                      <td className="px-4 py-2 border-b border-white/10">
+                      <td className="px-4 py-3 text-sm">
                         {appointment.prescription ? (
                           <a
                             href={appointment.prescription}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-primary hover:underline"
+                            className="text-primary text-sm hover:underline"
                           >
                             View Prescription
                           </a>
                         ) : (
-                          "No prescription"
+                          <span className="text-gray-500">No prescription</span>
                         )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             ) : (
-              <p>No appointments found.</p>
+              <p className="text-gray-500 text-sm">No appointments found.</p>
             )}
           </div>
         )}
 
         {activeTab === "healthRecords" && (
           <>
-            <div className="glass-card p-6 mb-8 animate-fade-in">
-              <h2 className="text-lg font-semibold mb-4 text-white">
+            <div className="glass-card p-5 mb-8 animate-fade-in">
+              <h2 className="text-base font-semibold mb-4 text-white">
                 Health Records
               </h2>
               {loading ? (
-                <p>Loading...</p>
+                <p className="text-gray-400 text-sm">Loading health records...</p>
               ) : error ? (
-                <p>{error}</p>
+                <p className="text-red-400 text-sm">{error}</p>
               ) : healthRecords.length > 0 ? (
-                <table className="min-w-full bg-transparent border border-white/10 rounded-lg">
+                <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+                <table className="min-w-full">
                   <thead>
-                    <tr>
-                      <th className="px-4 py-2 border-b text-left">Sno.</th>
-                      <th className="px-4 py-2 border-b text-left">Diagnosis</th>
-                      <th className="px-4 py-2 border-b text-left">Date</th>
-                      <th className="px-4 py-2 border-b text-left">Actions</th>
+                    <tr className="bg-white/[0.03]">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Sno.</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Diagnosis</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-white/[0.04]">
                     {healthRecords.map((record, index) => (
-                      <tr key={record.id} className="hover:bg-white/5 transition-colors">
-                        <td className="px-4 py-2 border-b">{index + 1}</td>
-                        <td className="px-4 py-2 border-b">{record.diagnosis}</td>
-                        <td className="px-4 py-2 border-b">
+                      <tr key={record.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="px-4 py-3 text-sm text-gray-300">{index + 1}</td>
+                        <td className="px-4 py-3 text-sm text-gray-300">{record.diagnosis}</td>
+                        <td className="px-4 py-3 text-sm text-gray-300">
                           {new Date(record.date).toLocaleDateString()}
                         </td>
-                        <td className="px-4 py-2 border-b border-white/10">
+                        <td className="px-4 py-3 text-sm">
                           <button
                             onClick={() => viewHealthRecordDetails(record.id)}
-                            className="text-primary hover:underline mr-4"
+                            className="text-primary hover:underline mr-4 text-sm"
                           >
                             View
                           </button>
                           <button
                             onClick={() => deleteHealthRecord(record.id)}
-                            className="text-red-600 hover:underline"
+                            className="text-red-400 hover:underline text-sm"
                           >
                             Delete
                           </button>
@@ -600,35 +581,28 @@ const Dashboard = () => {
                     ))}
                   </tbody>
                 </table>
+                </div>
               ) : (
-                <p>No health records found.</p>
+                <p className="text-gray-500 text-sm">No health records found.</p>
               )}
             </div>
             {/* Display Selected Health Record Details */}
             {selectedRecord && (
-              <div className="glass-card p-6 mb-8 animate-fade-in border-l-4 border-primary">
-                <h2 className="text-lg font-semibold mb-4 text-white">
+              <div className="glass-card p-5 mb-8 animate-fade-in border-l-2 border-primary">
+                <h3 className="text-sm font-semibold mb-3 text-white">
                   Health Record Details
-                </h2>
-                <p>
-                  <strong>Diagnosis:</strong> {selectedRecord.diagnosis}
-                </p>
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(selectedRecord.date).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Treatment:</strong> {selectedRecord.treatment || "N/A"}
-                </p>
-                <p>
-                  <strong>Prescription:</strong>{" "}
-                  {selectedRecord.prescription || "N/A"}
-                </p>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Diagnosis:</span> {selectedRecord.diagnosis}</p>
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Date:</span> {new Date(selectedRecord.date).toLocaleDateString()}</p>
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Treatment:</span> {selectedRecord.treatment || "N/A"}</p>
+                  <p className="text-gray-400"><span className="text-gray-300 font-medium">Prescription:</span> {selectedRecord.prescription || "N/A"}</p>
+                </div>
                 <button
                   onClick={() => setSelectedRecord(null)}
-                  className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 btn-animated"
+                  className="mt-3 text-xs text-gray-400 hover:text-white transition-colors"
                 >
-                  Close
+                  Dismiss
                 </button>
               </div>
             )}
@@ -652,26 +626,26 @@ const Dashboard = () => {
                 Search Results
               </h3>
               {searchResults.map((record) => (
-                <div key={record._id} className="mb-4 border-b pb-2">
-                  <p>
-                    <strong>Diagnosis:</strong> {record.diagnosis}
+                <div key={record._id} className="mb-4 border-b border-white/10 pb-2">
+                  <p className="text-gray-300">
+                    <strong className="text-white">Diagnosis:</strong> {record.diagnosis}
                   </p>
-                  <p>
-                    <strong>Date:</strong>{" "}
+                  <p className="text-gray-300">
+                    <strong className="text-white">Date:</strong>{" "}
                     {new Date(record.date).toLocaleDateString()}
                   </p>
-                  <p>
-                    <strong>Treatment:</strong> {record.treatment || "N/A"}
+                  <p className="text-gray-300">
+                    <strong className="text-white">Treatment:</strong> {record.treatment || "N/A"}
                   </p>
-                  <p>
-                    <strong>Prescription:</strong>{" "}
+                  <p className="text-gray-300">
+                    <strong className="text-white">Prescription:</strong>{" "}
                     {record.prescription || "N/A"}
                   </p>
                 </div>
               ))}
               <button
                 onClick={() => setSearchResults([])}
-                className="mt-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 btn-animated"
+                className="mt-4 bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl hover:bg-red-500/30 transition-colors text-sm font-medium"
               >
                 Close
               </button>

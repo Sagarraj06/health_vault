@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -66,13 +68,13 @@ const Testimonial = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center pt-8 bg-dark">
-        <h2 className="text-5xl font-bold text-primary mb-8 text-center"> Testimonials</h2>
-        <p className="text-gray-300 text-xl mb-6">
-          Let us know your allergies and medical history—so we can treat you, not your peanut butter cravings!
+      <div className="flex flex-col items-center justify-center pt-12 pb-4 bg-dark px-4">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 text-center text-balance">What Our Users Say</h2>
+        <p className="text-gray-400 text-base sm:text-lg mb-6 text-center max-w-xl leading-relaxed">
+          Trusted by students and healthcare professionals across the campus.
         </p>
       </div>
-      <div className="bg-surface p-8 m-14 rounded-3xl max-w-4xl mx-auto relative overflow-hidden border border-white/10">
+      <div className="glass-card p-6 sm:p-8 mx-4 sm:mx-8 lg:mx-14 mb-12 max-w-4xl lg:mx-auto relative overflow-hidden">
         {/* Progress Bar */}
         <div className="absolute top-0 left-0 w-full h-1 bg-white/10">
           <div
@@ -92,13 +94,13 @@ const Testimonial = () => {
                 className="w-full flex-shrink-0 px-4 transform transition-opacity duration-500"
               >
                 <div
-                  className="bg-transparent border-2 border-primary rounded-3xl p-6 mb-4 transform transition-all duration-500 hover:scale-[1.02] hover:border-primary/80"
+                  className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 sm:p-6 mb-4 transition-all duration-500 hover:border-white/10"
                 >
-                  <p className="text-white text-lg">&quot;{testimonial.text}&quot;</p>
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed">&quot;{testimonial.text}&quot;</p>
                 </div>
-                <div className="text-center transform transition-all duration-500">
-                  <h3 className="text-primary font-medium mb-1">{testimonial.author}</h3>
-                  <p className="text-gray-400 text-sm">{testimonial.position}</p>
+                <div className="text-center">
+                  <h3 className="text-white font-semibold text-sm mb-0.5">{testimonial.author}</h3>
+                  <p className="text-gray-500 text-xs">{testimonial.position}</p>
                 </div>
               </div>
             ))}

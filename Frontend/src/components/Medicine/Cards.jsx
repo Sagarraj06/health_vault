@@ -11,29 +11,32 @@ const dealers = [
 
 const Cards = () => {
   return (
-    <div className="flex flex-col items-center p-6 bg-dark">
+    <div className="flex flex-col items-center py-12 px-4 sm:px-6 md:px-8">
       {/* Search Bar */}
       <input
         type="text"
-        placeholder="Search Medicine !"
-        className="w-full max-w-lg p-3 border border-white/20 rounded-md shadow-sm bg-surface text-white focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-500"
+        placeholder="Search Medicine..."
+        className="w-full max-w-lg p-3.5 border border-white/[0.06] rounded-xl bg-white/[0.03] text-white text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 placeholder-gray-500 transition-all"
+        aria-label="Search medicine"
       />
 
       {/* Dealers Section */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl">
         {dealers.map((dealer, index) => (
-          <div key={index} className={`flex p-8 ${dealer.bgColor} rounded-xl shadow-md flex-row items-center h-52 border border-white/10 transition-transform hover:scale-105`}>
+          <div key={index} className="glass-card flex p-6 flex-row items-center h-44 hover:border-white/10 transition-all duration-300 group cursor-pointer">
             <div className="flex flex-col flex-1">
-              <h2 className={`text-lg font-bold ${dealer.textColor}`}>{dealer.name}</h2>
-              <p className="text-gray-300 font-semibold">{dealer.role}</p>
-              <div className="flex items-center mt-4 space-x-2 cursor-pointer group">
-                <p className="text-gray-400 group-hover:text-primary transition-colors">Learn more</p>
-                <div className="w-8 h-8 bg-black border border-white/20 rounded-full flex items-center justify-center group-hover:border-primary transition-colors">
-                  <span className="text-white text-lg">→</span>
+              <h3 className="text-sm font-semibold text-white">{dealer.name}</h3>
+              <p className="text-gray-400 text-xs mt-1">{dealer.role}</p>
+              <div className="flex items-center mt-4 gap-2 cursor-pointer">
+                <p className="text-gray-500 text-xs group-hover:text-primary transition-colors">Learn more</p>
+                <div className="w-6 h-6 bg-white/[0.04] border border-white/[0.06] rounded-full flex items-center justify-center group-hover:border-primary/30 group-hover:bg-primary/10 transition-all">
+                  <span className="text-gray-400 text-xs group-hover:text-primary transition-colors">{">"}</span>
                 </div>
               </div>
             </div>
-            <img src={dealer.imgSrc} alt={dealer.role} className="w-32 h-32 object-cover rounded-lg ml-4 bg-gray-800" />
+            <div className="w-28 h-28 rounded-xl bg-white/[0.03] border border-white/[0.06] ml-4 overflow-hidden">
+              <img src={dealer.imgSrc} alt={dealer.role} className="w-full h-full object-cover" />
+            </div>
           </div>
         ))}
       </div>
