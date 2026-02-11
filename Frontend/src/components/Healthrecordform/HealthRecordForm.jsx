@@ -3,266 +3,94 @@ import { api } from '../../axios.config';
 import { useNavigate } from "react-router-dom";
 
 const HealthRecordForm = () => {
-  const [formData, setFormData] = useState({
-    doctorId: '',
-    diagnosis: '',
-    treatment: '',
-    prescription: '',
-    date: '',
-    isManualUpload: false,
-    externalDoctorName: '',
-    externalHospitalName: '',
-  });
+  const [formData, setFormData] = useState({ doctorId: '', diagnosis: '', treatment: '', prescription: '', date: '', isManualUpload: false, externalDoctorName: '', externalHospitalName: '' });
   const [doctorList, setDoctorList] = useState([]);
   const [attachments, setAttachments] = useState([]);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  // Set default date to today's date when component mounts
-  useEffect(() => {
-    if (!formData.date) {
-      const today = new Date().toISOString().split('T')[0];
-      setFormData(prev => ({ ...prev, date: today }));
-    }
-  }, [formData.date]);
+  useEffect(() => { if (!formData.date) { const today = new Date().toISOString().split('T')[0]; setFormData(prev => ({ ...prev, date: today })); } }, [formData.date]);
 
-  // Fetch doctors list on mount
   useEffect(() => {
     const fetchDoctors = async () => {
-      try {
-        const response = await api.get("/user/doctors");
-        if (response.status === 200) {
-          // Assuming response.data is an array of doctors with _id, name and specialization properties
-          setDoctorList(response.data);
-        } else {
-          setMessage("Failed to load doctors list.");
-        }
-      } catch (error) {
-        setMessage("Error fetching doctors list.");
-      }
+      try { const response = await api.get("/user/doctors"); if (response.status === 200) setDoctorList(response.data); else setMessage("Failed to load doctors list."); }
+      catch { setMessage("Error fetching doctors list."); }
     };
     fetchDoctors();
   }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (type === 'checkbox') {
-      setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (type === 'file') {
-      setAttachments(files);
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    if (type === 'checkbox') setFormData(prev => ({ ...prev, [name]: checked }));
+    else if (type === 'file') setAttachments(files);
+    else setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage('');
-
+    e.preventDefault(); setMessage('');
     const submissionData = new FormData();
-    submissionData.append('doctorId', formData.doctorId);
-    submissionData.append('diagnosis', formData.diagnosis);
-    submissionData.append('treatment', formData.treatment);
-    submissionData.append('prescription', formData.prescription);
-    submissionData.append('date', formData.date);
-    submissionData.append('isManualUpload', formData.isManualUpload.toString());
-
-    if (formData.isManualUpload) {
-      submissionData.append('externalDoctorName', formData.externalDoctorName);
-      submissionData.append('externalHospitalName', formData.externalHospitalName);
-    }
-
-    if (formData.doctorId === "" && !formData.isManualUpload) {
-      setMessage("Doctor ID is required.");
-      return;
-    }
-
-    if (attachments.length > 0) {
-      for (let i = 0; i < attachments.length; i++) {
-        submissionData.append('attachments', attachments[i]);
-      }
-    }
-
+    submissionData.append('doctorId', formData.doctorId); submissionData.append('diagnosis', formData.diagnosis);
+    submissionData.append('treatment', formData.treatment); submissionData.append('prescription', formData.prescription);
+    submissionData.append('date', formData.date); submissionData.append('isManualUpload', formData.isManualUpload.toString());
+    if (formData.isManualUpload) { submissionData.append('externalDoctorName', formData.externalDoctorName); submissionData.append('externalHospitalName', formData.externalHospitalName); }
+    if (formData.doctorId === "" && !formData.isManualUpload) { setMessage("Doctor ID is required."); return; }
+    if (attachments.length > 0) for (let i = 0; i < attachments.length; i++) submissionData.append('attachments', attachments[i]);
     try {
-      const response = await api.post(
-        "/health-record/create",
-        submissionData,
-        { withCredentials: true }
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        console.log("✅ Navigation Triggered");
-        navigate("/profile");
-      }
+      const response = await api.post("/health-record/create", submissionData, { withCredentials: true });
+      if (response.status === 200 || response.status === 201) navigate("/profile");
       setAttachments([]);
-    } catch (error) {
-      setMessage(error.response?.data?.message || error.message);
-    }
+    } catch (error) { setMessage(error.response?.data?.message || error.message); }
   };
+
+  const inputClasses = "w-full px-4 py-3 border border-border rounded-xl bg-surface text-text placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all";
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-12">
-      <div className="glass-card p-6 sm:p-8 animate-fade-in">
-        <h1 className="text-3xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-          Health Record Form
-        </h1>
+      <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 animate-fade-in shadow-sm">
+        <h1 className="text-3xl font-bold text-center mb-8 text-text font-heading">Health Record Form</h1>
         {message && (
-          <div className={`mb-6 p-4 rounded-lg text-center ${message.includes('Success') ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
-            {message}
-          </div>
+          <div className={`mb-6 p-4 rounded-xl text-center text-sm ${message.includes('Success') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>{message}</div>
         )}
-        <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
-          {/* Doctor Selection */}
+        <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-5">
           <div>
-            <label htmlFor="doctorId" className="block text-gray-300 font-medium mb-2">
-              Select Doctor
-            </label>
-            <select
-              id="doctorId"
-              name="doctorId"
-              value={formData.doctorId}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white focus:outline-none focus:border-primary transition-all duration-300"
-              required={!formData.isManualUpload}
-            >
-              <option value="" className="bg-dark">-- Select a doctor --</option>
-              {doctorList.map((doctor) => (
-                <option key={doctor.id} value={doctor.id} className="bg-dark">
-                  {doctor.name} {doctor.specialization ? `- ${doctor.specialization}` : ""}
-                </option>
-              ))}
+            <label htmlFor="doctorId" className="block text-text font-medium mb-2 text-sm">Select Doctor</label>
+            <select id="doctorId" name="doctorId" value={formData.doctorId} onChange={handleChange} className={inputClasses} required={!formData.isManualUpload}>
+              <option value="">-- Select a doctor --</option>
+              {doctorList.map((doctor) => (<option key={doctor.id} value={doctor.id}>{doctor.name} {doctor.specialization ? `- ${doctor.specialization}` : ""}</option>))}
             </select>
           </div>
-          {/* Diagnosis */}
+          {[{ id: "diagnosis", label: "Diagnosis", required: true, placeholder: "Enter diagnosis details" },
+            { id: "treatment", label: "Treatment", required: false, placeholder: "Enter treatment details" },
+            { id: "prescription", label: "Prescription", required: false, placeholder: "Enter prescription details" }].map(f => (
+            <div key={f.id}>
+              <label htmlFor={f.id} className="block text-text font-medium mb-2 text-sm">{f.label} {f.required && <span className="text-red-500">*</span>}</label>
+              <textarea id={f.id} name={f.id} value={formData[f.id]} onChange={handleChange} required={f.required} placeholder={f.placeholder} rows="3" className={inputClasses}></textarea>
+            </div>
+          ))}
           <div>
-            <label htmlFor="diagnosis" className="block text-gray-300 font-medium mb-2">
-              Diagnosis <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              id="diagnosis"
-              name="diagnosis"
-              value={formData.diagnosis}
-              onChange={handleChange}
-              required
-              placeholder="Enter diagnosis details"
-              rows="3"
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
-            ></textarea>
+            <label htmlFor="date" className="block text-text font-medium mb-2 text-sm">Date</label>
+            <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} className={inputClasses} />
           </div>
-          {/* Treatment */}
-          <div>
-            <label htmlFor="treatment" className="block text-gray-300 font-medium mb-2">
-              Treatment
-            </label>
-            <textarea
-              id="treatment"
-              name="treatment"
-              value={formData.treatment}
-              onChange={handleChange}
-              placeholder="Enter treatment details"
-              rows="3"
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
-            ></textarea>
-          </div>
-          {/* Prescription */}
-          <div>
-            <label htmlFor="prescription" className="block text-gray-300 font-medium mb-2">
-              Prescription
-            </label>
-            <textarea
-              id="prescription"
-              name="prescription"
-              value={formData.prescription}
-              onChange={handleChange}
-              placeholder="Enter prescription details"
-              rows="3"
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
-            ></textarea>
-          </div>
-          {/* Date */}
-          <div>
-            <label htmlFor="date" className="block text-gray-300 font-medium mb-2">
-              Date
-            </label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white focus:outline-none focus:border-primary transition-all duration-300"
-            />
-          </div>
-          {/* Manual Upload Checkbox */}
           <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isManualUpload"
-              name="isManualUpload"
-              checked={formData.isManualUpload}
-              onChange={handleChange}
-              className="h-5 w-5 text-primary focus:ring-primary border-white/20 rounded bg-surface/50"
-            />
-            <label htmlFor="isManualUpload" className="ml-2 block text-gray-300 font-medium">
-              Manual Upload?
-            </label>
+            <input type="checkbox" id="isManualUpload" name="isManualUpload" checked={formData.isManualUpload} onChange={handleChange} className="h-5 w-5 text-primary focus:ring-primary/20 border-border rounded" />
+            <label htmlFor="isManualUpload" className="ml-2 block text-text font-medium text-sm">Manual Upload?</label>
           </div>
-          {/* External Fields for Manual Upload */}
           {formData.isManualUpload && (
-            <div className="space-y-5 p-4 border border-white/10 rounded-lg bg-white/5">
-              <div>
-                <label htmlFor="externalDoctorName" className="block text-gray-300 font-medium mb-2">
-                  External Doctor Name
-                </label>
-                <input
-                  type="text"
-                  id="externalDoctorName"
-                  name="externalDoctorName"
-                  value={formData.externalDoctorName}
-                  onChange={handleChange}
-                  required={formData.isManualUpload}
-                  placeholder="Enter external doctor's name"
-                  className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
-                />
-              </div>
-              <div>
-                <label htmlFor="externalHospitalName" className="block text-gray-300 font-medium mb-2">
-                  External Hospital/Clinic Name
-                </label>
-                <input
-                  type="text"
-                  id="externalHospitalName"
-                  name="externalHospitalName"
-                  value={formData.externalHospitalName}
-                  onChange={handleChange}
-                  required={formData.isManualUpload}
-                  placeholder="Enter external hospital/clinic name"
-                  className="w-full px-4 py-3 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all duration-300"
-                />
-              </div>
+            <div className="space-y-5 p-4 border border-border rounded-xl bg-surface-alt">
+              {[{ id: "externalDoctorName", label: "External Doctor Name", placeholder: "Enter external doctor's name" },
+                { id: "externalHospitalName", label: "External Hospital/Clinic Name", placeholder: "Enter external hospital/clinic name" }].map(f => (
+                <div key={f.id}>
+                  <label htmlFor={f.id} className="block text-text font-medium mb-2 text-sm">{f.label}</label>
+                  <input type="text" id={f.id} name={f.id} value={formData[f.id]} onChange={handleChange} required={formData.isManualUpload} placeholder={f.placeholder} className={inputClasses} />
+                </div>
+              ))}
             </div>
           )}
-          {/* Attachments */}
           <div>
-            <label htmlFor="attachments" className="block text-gray-300 font-medium mb-2">
-              Attachments
-            </label>
-            <input
-              type="file"
-              id="attachments"
-              name="attachments"
-              onChange={handleChange}
-              multiple
-              className="w-full text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
-            />
+            <label htmlFor="attachments" className="block text-text font-medium mb-2 text-sm">Attachments</label>
+            <input type="file" id="attachments" name="attachments" onChange={handleChange} multiple className="w-full text-text-light file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all" />
           </div>
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full py-3 px-6 btn-animated bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-lg shadow-lg"
-          >
-            Submit Record
-          </button>
+          <button type="submit" className="w-full py-3 px-6 btn-animated bg-primary text-white font-semibold rounded-xl shadow-sm hover:bg-primary-dark transition-colors">Submit Record</button>
         </form>
       </div>
     </div>
