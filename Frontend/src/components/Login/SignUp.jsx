@@ -2,8 +2,7 @@ import React, { useContext, useState } from "react";
 import { api } from "../../axios.config.js";
 import { UserContext } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
-import { UserPlus, FileText, Stethoscope, GraduationCap, Eye, EyeOff } from "lucide-react";
+import { Activity, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function SignUp() {
   const { login } = useContext(UserContext);
@@ -17,202 +16,211 @@ export default function SignUp() {
   const [gender, setGender] = useState("Male");
   const [extra, setExtra] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     const formData = { role, name, email, password, phone, dateOfBirth, gender };
     if (role === "doctor") formData.specialization = extra;
 
     try {
-      const response = await api.post(
-        "user/signup",
-        formData,
-        { withCredentials: true }
-      );
-
-      if (response.status === 201) {
-        navigate("/login");
-      }
+      const response = await api.post("user/signup", formData, {
+        withCredentials: true,
+      });
+      if (response.status === 201) navigate("/login");
     } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message || "Signup failed");
-      } else {
-        console.log("Error Message:", error.message);
-      }
+      if (error.response) setError(error.response.data.message || "Signup failed");
+      else console.log("Error Message:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const inputClass =
+    "w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-text text-sm placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all";
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black p-8 relative overflow-hidden">
-      {/* Background Accents */}
-      <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/20 via-black to-black"></div>
-
-      <div className="relative z-10 bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-2xl shadow-2xl max-w-5xl w-full flex flex-col md:flex-row items-center animate-fade-in-up">
-
-        {/* Illustration Section */}
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10">
-          <h1 className="text-5xl font-bold text-secondary mb-12 tracking-wider">Sign Up</h1>
-
-          <div className="relative w-64 h-64">
-            {/* Background Glow */}
-            <div className="absolute inset-0 bg-secondary/20 blur-[60px] rounded-full" />
-
-            {/* Central UserPlus Icon */}
-            <motion.div
-              animate={{
-                scale: [1, 1.05, 1],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="absolute inset-0 flex items-center justify-center z-10"
-            >
-              <div className="bg-surface/80 backdrop-blur-md p-8 rounded-[2rem] border border-white/10 shadow-2xl shadow-secondary/20 relative">
-                <UserPlus size={80} className="text-secondary" />
-                <motion.div
-                  animate={{ opacity: [0, 1, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-full shadow-[0_0_10px_#06b6d4]"
-                />
-              </div>
-            </motion.div>
-
-            {/* Orbiting Elements */}
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0"
-            >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-8">
-                <div className="bg-surface/90 p-3 rounded-xl border border-white/10 shadow-lg transform rotate-12">
-                  <FileText size={32} className="text-primary" />
-                </div>
-              </div>
-              <div className="absolute bottom-8 right-8">
-                <div className="bg-surface/90 p-3 rounded-xl border border-white/10 shadow-lg transform -rotate-12">
-                  <Stethoscope size={32} className="text-green-400" />
-                </div>
-              </div>
-              <div className="absolute bottom-8 left-8">
-                <div className="bg-surface/90 p-3 rounded-xl border border-white/10 shadow-lg transform rotate-45">
-                  <GraduationCap size={32} className="text-accent" />
-                </div>
-              </div>
-            </motion.div>
+    <div className="min-h-screen flex items-center justify-center bg-surface px-4 py-12">
+      <div className="w-full max-w-lg">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+              <Activity className="w-7 h-7 text-card" />
+            </div>
           </div>
+          <h1 className="text-2xl font-bold text-text font-[Space_Grotesk]">
+            Create your account
+          </h1>
+          <p className="text-sm text-text-light mt-1">
+            Join HealthVault and manage your health
+          </p>
         </div>
 
-        {/* Form Section */}
-        <div className="w-full md:w-1/2 p-6 md:pl-12 max-h-[80vh] overflow-y-auto custom-scrollbar">
-          <form onSubmit={handleSubmit} className="space-y-5">
-
+        {/* Form Card */}
+        <div className="bg-card rounded-xl border border-border p-8 shadow-sm">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* Role Selection */}
-            <div className="flex justify-center space-x-4 mb-6 bg-black/30 p-2 rounded-xl border border-white/10">
-              {["student", "doctor", "admin"].map((r) => (
-                <label key={r} className={`cursor-pointer px-4 py-2 rounded-lg transition-all ${role === r ? 'bg-secondary text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>
-                  <input
-                    type="radio"
-                    name="role"
-                    checked={role === r}
-                    onChange={() => setRole(r)}
-                    className="hidden"
-                  />
-                  <span className="capitalize font-medium">{r}</span>
-                </label>
-              ))}
+            <div>
+              <label className="block text-sm font-medium text-text mb-2">
+                I am a
+              </label>
+              <div className="flex gap-2 p-1 bg-surface rounded-lg border border-border">
+                {["student", "doctor", "admin"].map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className={`flex-1 py-2 rounded-md text-sm font-medium transition-all capitalize ${
+                      role === r
+                        ? "bg-primary text-card shadow-sm"
+                        : "text-text-light hover:text-text"
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-text mb-1.5">
+                Full Name
+              </label>
               <input
                 type="text"
-                placeholder="Full Name"
+                placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                className={inputClass}
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-text mb-1.5">
+                Email Address
+              </label>
               <input
                 type="email"
-                placeholder="Email Address"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                className={inputClass}
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-text mb-1.5">
+                Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Create a strong password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all pr-12"
+                  className={`${inputClass} pr-10`}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text transition-colors"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-text mb-1.5">
+                Phone Number
+              </label>
               <input
                 type="text"
-                placeholder="Phone Number"
+                placeholder="+1 (555) 000-0000"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                className={inputClass}
               />
-              <div className="grid grid-cols-2 gap-4">
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-text mb-1.5">
+                  Date of Birth
+                </label>
                 <input
                   type="date"
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                  className={inputClass}
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text mb-1.5">
+                  Gender
+                </label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                  className={inputClass}
                 >
-                  <option value="Male" className="bg-black">Male</option>
-                  <option value="Female" className="bg-black">Female</option>
-                  <option value="Other" className="bg-black">Other</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
-
-              {role === "doctor" && (
-                <input
-                  type="text"
-                  placeholder="Specialization"
-                  value={extra}
-                  onChange={(e) => setExtra(e.target.value)}
-                  className="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
-                  required
-                />
-              )}
             </div>
 
+            {role === "doctor" && (
+              <div>
+                <label className="block text-sm font-medium text-text mb-1.5">
+                  Specialization
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. General Physician, Cardiologist"
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  className={inputClass}
+                  required
+                />
+              </div>
+            )}
+
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm text-center">
+              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 {error}
               </div>
             )}
 
-            <button type="submit" className="w-full mt-6 p-4 bg-secondary text-white font-bold rounded-xl shadow-lg shadow-secondary/25 hover:bg-pink-600 hover:shadow-secondary/50 hover:scale-[1.02] transition-all duration-300">
-              Create Account
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-primary text-card text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-50"
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+              {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>
-
-          <p className="mt-6 text-center text-gray-400 text-sm">
-            Already have an account? <span className="text-secondary cursor-pointer hover:underline" onClick={() => navigate('/login')}>Log In</span>
-          </p>
         </div>
+
+        <p className="text-center text-sm text-text-light mt-6">
+          Already have an account?{" "}
+          <button
+            onClick={() => navigate("/login")}
+            className="text-primary font-medium hover:underline"
+          >
+            Sign In
+          </button>
+        </p>
       </div>
     </div>
   );

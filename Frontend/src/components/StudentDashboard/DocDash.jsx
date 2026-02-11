@@ -12,8 +12,6 @@ import {
   Pie,
 } from "recharts";
 import {
-  Bell,
-  Settings,
   Search,
   Eye,
   Calendar,
@@ -23,10 +21,7 @@ import {
   X,
   Video,
   Clock,
-  Bot,
-  MessageSquare,
   Activity,
-  AlertCircle,
   FileCheck,
 } from "lucide-react";
 import { api } from "../../axios.config.js";
@@ -35,18 +30,15 @@ import Notibell from "../Noti/Notibell.jsx";
 import Sidebar from "../Sidebar";
 
 const DocDash = () => {
-  // State for active tab - Moved to top to avoid ReferenceError
   const [activeTab, setActiveTab] = useState("certificate");
-  // Sample data for student certificates
   const [certificates, setCertificates] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch Certificates and Prescriptions
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
-        const res = await api.get('/certificate/pending-certificates');
+        const res = await api.get("/certificate/pending-certificates");
         setCertificates(res.data);
       } catch (error) {
         console.error("Error fetching certificates:", error);
@@ -55,26 +47,25 @@ const DocDash = () => {
 
     const fetchPrescriptions = async () => {
       try {
-        const res = await api.get('/certificate/pending-prescriptions');
+        const res = await api.get("/certificate/pending-prescriptions");
         setPrescriptions(res.data);
       } catch (error) {
         console.error("Error fetching prescriptions:", error);
       }
     };
 
-    if (activeTab === 'certificate') fetchCertificates();
-    if (activeTab === 'prescription') fetchPrescriptions();
+    if (activeTab === "certificate") fetchCertificates();
+    if (activeTab === "prescription") fetchPrescriptions();
   }, [activeTab]);
 
   const handleUpdateStatus = async (id, status) => {
     try {
       await api.patch(`/certificate/${id}/status`, { status });
-      // Refresh data
-      if (activeTab === 'certificate') {
-        const res = await api.get('/certificate/pending-certificates');
+      if (activeTab === "certificate") {
+        const res = await api.get("/certificate/pending-certificates");
         setCertificates(res.data);
       } else {
-        const res = await api.get('/certificate/pending-prescriptions');
+        const res = await api.get("/certificate/pending-prescriptions");
         setPrescriptions(res.data);
       }
     } catch (error) {
@@ -82,7 +73,7 @@ const DocDash = () => {
       alert("Failed to update status");
     }
   };
-  // Replace static appointment sample data with dynamic state
+
   const [appointments, setAppointments] = useState([]);
   const [loadingAppointments, setLoadingAppointments] = useState(true);
   const [appointmentsError, setAppointmentsError] = useState(null);
@@ -96,16 +87,13 @@ const DocDash = () => {
     videoConsultations: 0,
   });
 
-  // State to manage the currently selected appointment for viewing details
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await api.get('/doctor/stats');
+        const res = await api.get("/doctor/stats");
         setStats(res.data);
       } catch (error) {
         console.error("Error fetching doctor stats:", error);
@@ -116,47 +104,32 @@ const DocDash = () => {
 
   useEffect(() => {
     const handleNewAppointment = (data) => {
-
       const app = data.appointment;
-
       const newApp = {
         id: app._id,
         patientName: app.studentId?.name || "Unknown",
         studentId: app.studentId?._id || "N/A",
         studentEmail: app.studentId?.email || "N/A",
         appointmentDate: new Date(app.slotDateTime).toLocaleDateString(),
-        timeFrom: new Date(app.slotDateTime).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        timeFrom: new Date(app.slotDateTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         timeTo: calculateEndTime(app.slotDateTime, app.duration || 30),
         reason: app.reason || "General Checkup",
         status: app.status.charAt(0).toUpperCase() + app.status.slice(1),
         rawData: app,
-
       };
-
-      // Prepend the new appointment to the current list
       setAppointments((prevAppointments) => [newApp, ...prevAppointments]);
     };
 
     socket.on("newAppointment", handleNewAppointment);
-
-    // Cleanup on unmount
     return () => {
       socket.off("newAppointment", handleNewAppointment);
     };
   }, []);
 
-  // Sample data for prescriptions
-
-
-  // Remove static sample data for video call appointments and use dynamic state instead
   const [videoAppointments, setVideoAppointments] = useState([]);
   const [loadingVideo, setLoadingVideo] = useState(true);
   const [videoError, setVideoError] = useState(null);
 
-  // Statistics for dashboard charts
   const healthIssuesData = [
     { name: "Respiratory", value: 35 },
     { name: "Digestive", value: 20 },
@@ -174,10 +147,6 @@ const DocDash = () => {
     { month: "Jun", checkups: 32, emergencies: 9 },
   ];
 
-  // State for active tab
-
-
-  // Helper function to format date in DD/month name/yyyy format
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, "0");
@@ -186,7 +155,6 @@ const DocDash = () => {
     return `${day}/${month}/${year}`;
   };
 
-  // Fetch appointments whenever the status or date filter changes
   useEffect(() => {
     fetchAppointments();
   }, [statusFilter, dateFilter]);
@@ -201,19 +169,14 @@ const DocDash = () => {
       if (dateFilter) {
         queryParams.date = dateFilter;
       }
-      const response = await api.get("/doctor/appointment", {
-        params: queryParams,
-      });
+      const response = await api.get("/doctor/appointment", { params: queryParams });
       const formattedAppointments = response.data.map((app) => ({
         id: app._id,
         patientName: app.studentId?.name || "Unknown Patient",
         studentId: app.studentId?._id || "N/A",
         studentEmail: app.studentId?.email || "N/A",
         appointmentDate: new Date(app.slotDateTime).toLocaleDateString(),
-        timeFrom: new Date(app.slotDateTime).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        timeFrom: new Date(app.slotDateTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         timeTo: calculateEndTime(app.slotDateTime, app.duration || 30),
         reason: app.reason || "General Checkup",
         status: app.status.charAt(0).toUpperCase() + app.status.slice(1),
@@ -222,38 +185,24 @@ const DocDash = () => {
       setAppointments(formattedAppointments);
     } catch (error) {
       console.error("Error fetching appointments:", error);
-      setAppointmentsError(
-        "Failed to load appointments. Please try again later."
-      );
+      setAppointmentsError("Failed to load appointments. Please try again later.");
     } finally {
       setLoadingAppointments(false);
     }
   };
 
-  // Helper to calculate end time based on start time and duration
   const calculateEndTime = (startDateTime, durationMinutes) => {
-    const endTime = new Date(
-      new Date(startDateTime).getTime() + durationMinutes * 60000
-    );
-    return endTime.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const endTime = new Date(new Date(startDateTime).getTime() + durationMinutes * 60000);
+    return endTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  // Update appointment status and update the local state
   const updateAppointmentStatus = async (appointmentId, newStatus) => {
     try {
-      await api.patch(`/doctor/${appointmentId}/appointment-status`, {
-        status: newStatus.toLowerCase(),
-      });
-      setAppointments((prevAppointments) =>
-        prevAppointments.map((app) =>
+      await api.patch(`/doctor/${appointmentId}/appointment-status`, { status: newStatus.toLowerCase() });
+      setAppointments((prev) =>
+        prev.map((app) =>
           app.id === appointmentId
-            ? {
-              ...app,
-              status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1),
-            }
+            ? { ...app, status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1) }
             : app
         )
       );
@@ -263,7 +212,6 @@ const DocDash = () => {
     }
   };
 
-  // Function to view appointment details (for example, opening a modal)
   const viewAppointmentDetails = (appointment) => {
     setSelectedAppointment(appointment);
     setIsModalOpen(true);
@@ -274,7 +222,6 @@ const DocDash = () => {
     setSelectedAppointment(null);
   };
 
-  // New: Fetch video appointments from the API when the Video tab is active
   useEffect(() => {
     if (activeTab === "video") {
       fetchVideoAppointments();
@@ -284,333 +231,121 @@ const DocDash = () => {
   const fetchVideoAppointments = async () => {
     try {
       setLoadingVideo(true);
-      const response = await api.get("/doctor/appointment", {
-        params: { status: "confirmed" },
-      });
+      const response = await api.get("/doctor/appointment", { params: { status: "confirmed" } });
       const formattedVideoAppointments = response.data.map((app) => ({
         id: app._id,
         patientName: app.studentId?.name || "Unknown Patient",
         studentId: app.studentId?._id || "N/A",
         appointmentDate: formatDate(app.slotDateTime),
-        time: new Date(app.slotDateTime).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        time: new Date(app.slotDateTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         status: app.status.charAt(0).toUpperCase() + app.status.slice(1),
         rawData: app,
       }));
       setVideoAppointments(formattedVideoAppointments);
     } catch (error) {
       console.error("Error fetching video appointments:", error);
-      setVideoError(
-        "Failed to load video appointments. Please try again later."
-      );
+      setVideoError("Failed to load video appointments. Please try again later.");
     } finally {
       setLoadingVideo(false);
     }
   };
 
-  return (
-    <div className="flex min-h-screen bg-transparent text-white relative">
+  const statusBadge = (status) => {
+    const s = status?.toLowerCase();
+    if (s === "approved" || s === "confirmed" || s === "verified")
+      return "bg-emerald-50 text-emerald-700 border border-emerald-200";
+    if (s === "rejected" || s === "cancelled")
+      return "bg-red-50 text-red-700 border border-red-200";
+    if (s === "delayed")
+      return "bg-orange-50 text-orange-700 border border-orange-200";
+    return "bg-amber-50 text-amber-700 border border-amber-200";
+  };
 
-      {/* Sidebar */}
-      {/* Sidebar */}
+  const statCards = [
+    { title: "Today's Appointments", value: stats.todayAppointments, icon: Calendar, color: "bg-sky-50", textColor: "text-sky-600" },
+    { title: "Pending Certificates", value: stats.pendingCertificates, icon: FileCheck, color: "bg-amber-50", textColor: "text-amber-600" },
+    { title: "Active Cases", value: stats.activeCases, icon: Activity, color: "bg-emerald-50", textColor: "text-emerald-600" },
+    { title: "Video Consultations", value: stats.videoConsultations, icon: Video, color: "bg-primary/5", textColor: "text-primary" },
+  ];
+
+  const tabs = [
+    { key: "certificate", label: "Certificate Verification" },
+    { key: "appointment", label: "Appointment Approval" },
+    { key: "prescription", label: "Prescription Verification" },
+    { key: "video", label: "Video Consultations" },
+  ];
+
+  return (
+    <div className="flex min-h-screen bg-surface">
       <Sidebar role="doctor" />
 
-      {/* Main Content */}
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-6 lg:p-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Doctor's Dashboard</h1>
-          <div className="flex items-center space-x-4">
+          <h1 className="text-2xl font-bold text-text font-[Space_Grotesk]">
+            {"Doctor's Dashboard"}
+          </h1>
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+              <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search patients..."
-                className="pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-surface/50 text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all duration-300 focus:w-64 w-48"
+                className="pl-9 pr-4 py-2 border border-border rounded-lg bg-card text-text text-sm placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-48 focus:w-64"
               />
             </div>
-            <Settings className="w-6 h-6 text-gray-400 cursor-pointer hover:text-primary transition-colors hover:rotate-90 duration-500" />
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+            <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-card text-sm font-bold">
               D
             </div>
           </div>
         </div>
 
         {/* Statistics Overview */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          {[
-            {
-              title: "Today's Appointments",
-              value: stats.todayAppointments,
-              color: "bg-gradient-to-r from-blue-600 to-cyan-500",
-              icon: Calendar,
-            },
-            {
-              title: "Pending Certificates",
-              value: stats.pendingCertificates,
-              color: "bg-gradient-to-r from-amber-500 to-yellow-400",
-              icon: FileCheck,
-            },
-            {
-              title: "Active Cases",
-              value: stats.activeCases,
-              color: "bg-gradient-to-r from-emerald-500 to-lime-500",
-              icon: Activity,
-            },
-            {
-              title: "Video Consultations",
-              value: stats.videoConsultations,
-              color: "bg-gradient-to-r from-violet-600 to-fuchsia-500",
-              icon: Video,
-            },
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="glass-card p-6 hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group"
-            >
-              <div className={`absolute top-0 right-0 w-20 h-20 ${item.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-150 duration-500`}></div>
-              <div className="flex justify-between items-center mb-4 relative z-10">
-                <div className={`${item.color} p-3 rounded-lg shadow-lg`}>
-                  <item.icon className="w-6 h-6 text-white" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {statCards.map((item, index) => (
+            <div key={index} className="bg-card rounded-xl border border-border p-5 hover:shadow-md transition-all">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-10 h-10 ${item.color} rounded-lg flex items-center justify-center`}>
+                  <item.icon className={`w-5 h-5 ${item.textColor}`} />
                 </div>
-                <span className="text-gray-400 text-sm bg-white/5 px-2 py-1 rounded">Today</span>
+                <span className="text-xs text-text-light bg-surface-alt px-2 py-1 rounded">Today</span>
               </div>
-              <h2 className="text-2xl font-bold text-white relative z-10">{item.value}</h2>
-              <p className="text-gray-300 relative z-10">{item.title}</p>
+              <h2 className="text-2xl font-bold text-text">{item.value}</h2>
+              <p className="text-sm text-text-light">{item.title}</p>
             </div>
           ))}
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-white/10">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab("certificate")}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "certificate"
-                ? "border-b-2 border-primary text-primary font-semibold"
-                : "text-gray-500 hover:text-gray-300"
+        <div className="mb-6 border-b border-border">
+          <nav className="flex gap-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.key
+                    ? "border-primary text-primary"
+                    : "border-transparent text-text-light hover:text-text hover:border-border"
                 }`}
-            >
-              Certificate Verification
-            </button>
-            <button
-              onClick={() => setActiveTab("appointment")}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "appointment"
-                ? "border-b-2 border-primary text-primary font-semibold"
-                : "text-gray-500 hover:text-gray-300"
-                }`}
-            >
-              Appointment Approval
-            </button>
-            <button
-              onClick={() => setActiveTab("prescription")}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "prescription"
-                ? "border-b-2 border-primary text-primary font-semibold"
-                : "text-gray-500 hover:text-gray-300"
-                }`}
-            >
-              Prescription Verification
-            </button>
-            <button
-              onClick={() => setActiveTab("video")}
-              className={`pb-4 px-1 transition-all duration-300 ${activeTab === "video"
-                ? "border-b-2 border-primary text-primary font-semibold"
-                : "text-gray-500 hover:text-gray-300"
-                }`}
-            >
-              Video Consultations
-            </button>
-          </div>
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* Tab Content */}
-        <div className="glass-card p-6 animate-fade-in">
+        <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
           {/* Certificate Verification Tab */}
-
-          {activeTab === "appointment" && (
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-green-400">
-                  Appointment Requests
-                </h2>
-                <div className="flex space-x-2">
-                  <select
-                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    <option value="">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Approved</option>
-                    <option value="cancelled">Rejected</option>
-                    <option value="delayed">Delayed</option>
-                  </select>
-                  <input
-                    type="date"
-                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                  />
-                </div>
-              </div>
-              {loadingAppointments ? (
-                <div className="flex justify-center items-center py-10">
-                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-500"></div>
-                </div>
-              ) : appointmentsError ? (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                  {appointmentsError}
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-white/10">
-                    <thead className="bg-white/5">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          Patient Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          Student ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          From
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          To
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          Reason
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-transparent divide-y divide-white/10">
-                      {appointments.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan="9"
-                            className="px-6 py-4 text-center text-gray-400"
-                          >
-                            No appointments found
-                          </td>
-                        </tr>
-                      ) : (
-                        appointments.map((app) => (
-                          <tr key={app.id} className="hover:bg-white/5">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                              {String(app.id).substring(0, 6)}...
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                              {app.patientName}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                              {app.studentId}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                              {app.appointmentDate}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                              {app.timeFrom}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                              {app.timeTo}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                              {app.reason}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${app.status === "Confirmed"
-                                  ? "bg-green-100 text-green-800"
-                                  : app.status === "Cancelled"
-                                    ? "bg-red-100 text-red-800"
-                                    : app.status === "Delayed"
-                                      ? "bg-orange-100 text-orange-800"
-                                      : "bg-yellow-100 text-yellow-800"
-                                  }`}
-                              >
-                                {app.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <div className="flex space-x-2">
-                                {app.status === "Pending" ? (
-                                  <>
-                                    <button
-                                      className="flex items-center text-green-600 hover:text-green-900"
-                                      onClick={() =>
-                                        updateAppointmentStatus(
-                                          app.id,
-                                          "confirmed"
-                                        )
-                                      }
-                                    >
-                                      <Check className="w-4 h-4 mr-1" /> Approve
-                                    </button>
-                                    <button
-                                      className="flex items-center text-red-600 hover:text-red-900"
-                                      onClick={() =>
-                                        updateAppointmentStatus(
-                                          app.id,
-                                          "cancelled"
-                                        )
-                                      }
-                                    >
-                                      <X className="w-4 h-4 mr-1" /> Reject
-                                    </button>
-                                    <button
-                                      className="flex items-center text-orange-600 hover:text-orange-900"
-                                      onClick={() =>
-                                        updateAppointmentStatus(
-                                          app.id,
-                                          "delayed"
-                                        )
-                                      }
-                                    >
-                                      <Clock className="w-4 h-4 mr-1" /> Delay
-                                    </button>
-                                  </>
-                                ) : (
-                                  <button
-                                    className="flex items-center text-blue-600 hover:text-blue-900"
-                                    onClick={() => viewAppointmentDetails(app)}
-                                  >
-                                    <Eye className="w-4 h-4 mr-1" /> View
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
-
           {activeTab === "certificate" && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-base font-semibold text-text font-[Space_Grotesk]">
                   Student Certificate Verification
                 </h2>
-                <div className="flex space-x-2">
-                  <select className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:border-primary transition-all">
+                <div className="flex gap-2">
+                  <select className="border border-border rounded-lg px-3 py-2 bg-card text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     <option>All Status</option>
                     <option>Pending</option>
                     <option>Approved</option>
@@ -619,95 +354,56 @@ const DocDash = () => {
                   <input
                     type="text"
                     placeholder="Search by ID"
-                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all"
+                    className="border border-border rounded-lg px-3 py-2 bg-card text-text text-sm placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-white/5">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Student Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Student ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Certificate Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Issue Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Expiry Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Document
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Actions
-                      </th>
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="border-b border-border bg-surface-alt/50">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Student</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Student ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Type</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Issue Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Document</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-transparent divide-y divide-white/10">
+                  <tbody>
                     {certificates.map((cert) => (
-                      <tr key={cert.id} className="hover:bg-white/5 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                          {cert.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.student_name || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.student_email || cert.student_id || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {cert.diagnosis} {/* Using Diagnosis as Cert Type/Title */}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {new Date(cert.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          N/A
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-primary underline cursor-pointer hover:text-accent transition-colors">
-                          View PDF
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cert.status === "Approved" || cert.status === "Verified"
-                              ? "bg-green-500/20 text-green-400"
-                              : cert.status === "Rejected"
-                                ? "bg-red-500/20 text-red-400"
-                                : "bg-yellow-500/20 text-yellow-400"
-                              }`}
-                          >
+                      <tr key={cert.id} className="border-b border-border/50 hover:bg-surface-alt/50 transition-colors">
+                        <td className="px-4 py-3 text-sm font-medium text-text">{cert.id}</td>
+                        <td className="px-4 py-3 text-sm text-text">{cert.student_name || "N/A"}</td>
+                        <td className="px-4 py-3 text-sm text-text">{cert.student_email || cert.student_id || "N/A"}</td>
+                        <td className="px-4 py-3 text-sm text-text">{cert.diagnosis}</td>
+                        <td className="px-4 py-3 text-sm text-text">{new Date(cert.date).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-sm text-primary cursor-pointer hover:underline">View PDF</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${statusBadge(cert.status)}`}>
                             {cert.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="flex space-x-2">
-                            <button className="flex items-center text-primary hover:text-accent transition-colors">
-                              <Eye className="w-4 h-4 mr-1" /> View
+                        <td className="px-4 py-3 text-sm">
+                          <div className="flex gap-2">
+                            <button className="text-primary hover:underline text-sm font-medium flex items-center gap-1">
+                              <Eye className="w-3.5 h-3.5" /> View
                             </button>
                             {cert.status === "Pending" && (
                               <>
                                 <button
-                                  onClick={() => handleUpdateStatus(cert.id, 'Verified')}
-                                  className="flex items-center text-green-400 hover:text-green-300 transition-colors">
-                                  <Check className="w-4 h-4 mr-1" /> Approve
+                                  onClick={() => handleUpdateStatus(cert.id, "Verified")}
+                                  className="text-emerald-600 hover:underline text-sm font-medium flex items-center gap-1"
+                                >
+                                  <Check className="w-3.5 h-3.5" /> Approve
                                 </button>
                                 <button
-                                  onClick={() => handleUpdateStatus(cert.id, 'Rejected')}
-                                  className="flex items-center text-red-400 hover:text-red-300 transition-colors">
-                                  <X className="w-4 h-4 mr-1" /> Reject
+                                  onClick={() => handleUpdateStatus(cert.id, "Rejected")}
+                                  className="text-red-500 hover:underline text-sm font-medium flex items-center gap-1"
+                                >
+                                  <X className="w-3.5 h-3.5" /> Reject
                                 </button>
                               </>
                             )}
@@ -722,16 +418,118 @@ const DocDash = () => {
           )}
 
           {/* Appointment Approval Tab */}
+          {activeTab === "appointment" && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-base font-semibold text-text font-[Space_Grotesk]">
+                  Appointment Requests
+                </h2>
+                <div className="flex gap-2">
+                  <select
+                    className="border border-border rounded-lg px-3 py-2 bg-card text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Approved</option>
+                    <option value="cancelled">Rejected</option>
+                    <option value="delayed">Delayed</option>
+                  </select>
+                  <input
+                    type="date"
+                    className="border border-border rounded-lg px-3 py-2 bg-card text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                  />
+                </div>
+              </div>
+              {loadingAppointments ? (
+                <div className="flex justify-center py-10">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
+                </div>
+              ) : appointmentsError ? (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {appointmentsError}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-border bg-surface-alt/50">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">ID</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Patient</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Student ID</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">From</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">To</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Reason</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {appointments.length === 0 ? (
+                        <tr>
+                          <td colSpan="9" className="px-4 py-8 text-center text-text-light text-sm">
+                            No appointments found
+                          </td>
+                        </tr>
+                      ) : (
+                        appointments.map((app) => (
+                          <tr key={app.id} className="border-b border-border/50 hover:bg-surface-alt/50 transition-colors">
+                            <td className="px-4 py-3 text-sm font-medium text-text">{String(app.id).substring(0, 6)}...</td>
+                            <td className="px-4 py-3 text-sm text-text">{app.patientName}</td>
+                            <td className="px-4 py-3 text-sm text-text">{app.studentId}</td>
+                            <td className="px-4 py-3 text-sm text-text">{app.appointmentDate}</td>
+                            <td className="px-4 py-3 text-sm text-text">{app.timeFrom}</td>
+                            <td className="px-4 py-3 text-sm text-text">{app.timeTo}</td>
+                            <td className="px-4 py-3 text-sm text-text">{app.reason}</td>
+                            <td className="px-4 py-3">
+                              <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${statusBadge(app.status)}`}>
+                                {app.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <div className="flex gap-2">
+                                {app.status === "Pending" ? (
+                                  <>
+                                    <button className="text-emerald-600 hover:underline text-sm font-medium flex items-center gap-1" onClick={() => updateAppointmentStatus(app.id, "confirmed")}>
+                                      <Check className="w-3.5 h-3.5" /> Approve
+                                    </button>
+                                    <button className="text-red-500 hover:underline text-sm font-medium flex items-center gap-1" onClick={() => updateAppointmentStatus(app.id, "cancelled")}>
+                                      <X className="w-3.5 h-3.5" /> Reject
+                                    </button>
+                                    <button className="text-orange-500 hover:underline text-sm font-medium flex items-center gap-1" onClick={() => updateAppointmentStatus(app.id, "delayed")}>
+                                      <Clock className="w-3.5 h-3.5" /> Delay
+                                    </button>
+                                  </>
+                                ) : (
+                                  <button className="text-primary hover:underline text-sm font-medium flex items-center gap-1" onClick={() => viewAppointmentDetails(app)}>
+                                    <Eye className="w-3.5 h-3.5" /> View
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Prescription Verification Tab */}
           {activeTab === "prescription" && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-base font-semibold text-text font-[Space_Grotesk]">
                   Student Prescription Verification
                 </h2>
-                <div className="flex space-x-2">
-                  <select className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white focus:outline-none focus:border-primary transition-all">
+                <div className="flex gap-2">
+                  <select className="border border-border rounded-lg px-3 py-2 bg-card text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                     <option>All Status</option>
                     <option>Pending</option>
                     <option>Approved</option>
@@ -740,107 +538,62 @@ const DocDash = () => {
                   <input
                     type="text"
                     placeholder="Search medication"
-                    className="border border-white/20 rounded-lg px-3 py-2 bg-surface text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all"
+                    className="border border-border rounded-lg px-3 py-2 bg-card text-text text-sm placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-gradient-to-r from-primary/10 to-transparent">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Student Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Student ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Medication
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Dosage
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Issued Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Notes
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider min-w-[200px]">
-                        Actions
-                      </th>
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="border-b border-border bg-surface-alt/50">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Student</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Student ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Medication</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Dosage</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Notes</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-text-light uppercase tracking-wider min-w-[200px]">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-transparent divide-y divide-white/10">
+                  <tbody>
                     {prescriptions.map((presc) => (
-                      <tr key={presc.id} className="hover:bg-white/5 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                          {presc.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.student_name || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.student_email || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.prescription || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {presc.treatment || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {new Date(presc.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-300 max-w-xs truncate">
-                          {presc.diagnosis}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${presc.status === "Approved" || presc.status === "Verified"
-                              ? "bg-green-500/20 text-green-400"
-                              : presc.status === "Rejected"
-                                ? "bg-red-500/20 text-red-400"
-                                : "bg-yellow-500/20 text-yellow-400"
-                              }`}
-                          >
+                      <tr key={presc.id} className="border-b border-border/50 hover:bg-surface-alt/50 transition-colors">
+                        <td className="px-4 py-3 text-sm font-medium text-text">{presc.id}</td>
+                        <td className="px-4 py-3 text-sm text-text">{presc.student_name || "N/A"}</td>
+                        <td className="px-4 py-3 text-sm text-text">{presc.student_email || "N/A"}</td>
+                        <td className="px-4 py-3 text-sm text-text">{presc.prescription || "N/A"}</td>
+                        <td className="px-4 py-3 text-sm text-text">{presc.treatment || "N/A"}</td>
+                        <td className="px-4 py-3 text-sm text-text">{new Date(presc.date).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-sm text-text max-w-xs truncate">{presc.diagnosis}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${statusBadge(presc.status)}`}>
                             {presc.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col gap-2 items-start">
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col gap-1.5 items-start">
                             <button
                               onClick={() => {
                                 if (presc.attachments && presc.attachments.length > 0) {
-                                  // Open the first attachment in a new tab if available
-                                  const url = presc.attachments[0].url || presc.attachments[0]; // Handle object or string
-                                  window.open(url, '_blank');
+                                  const url = presc.attachments[0].url || presc.attachments[0];
+                                  window.open(url, "_blank");
                                 } else {
-                                  // Fallback to modal if no attachment
                                   alert("No attachment found for this record.");
                                 }
                               }}
-                              className="flex items-center text-primary hover:text-accent transition-colors"
+                              className="text-primary hover:underline text-sm font-medium flex items-center gap-1"
                             >
-                              <Eye className="w-4 h-4 mr-1" /> View Attachment
+                              <Eye className="w-3.5 h-3.5" /> View Attachment
                             </button>
                             {presc.status === "Pending" && (
                               <>
-                                <button
-                                  onClick={() => handleUpdateStatus(presc.id, 'Verified')}
-                                  className="flex items-center text-green-400 hover:text-green-300 transition-colors">
-                                  <Check className="w-4 h-4 mr-1" /> Approve
+                                <button onClick={() => handleUpdateStatus(presc.id, "Verified")} className="text-emerald-600 hover:underline text-sm font-medium flex items-center gap-1">
+                                  <Check className="w-3.5 h-3.5" /> Approve
                                 </button>
-                                <button
-                                  onClick={() => handleUpdateStatus(presc.id, 'Rejected')}
-                                  className="flex items-center text-red-400 hover:text-red-300 transition-colors">
-                                  <X className="w-4 h-4 mr-1" /> Reject
+                                <button onClick={() => handleUpdateStatus(presc.id, "Rejected")} className="text-red-500 hover:underline text-sm font-medium flex items-center gap-1">
+                                  <X className="w-3.5 h-3.5" /> Reject
                                 </button>
                               </>
                             )}
@@ -854,60 +607,52 @@ const DocDash = () => {
             </div>
           )}
 
-          {/* Video Consultation Tab */}
+          {/* Video Consultations Tab */}
           {activeTab === "video" && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Video Consultations</h2>
-                <button className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 text-white px-4 py-2 rounded-lg flex items-center">
-                  <Video className="w-4 h-4 mr-2" /> Schedule New Call
+                <h2 className="text-base font-semibold text-text font-[Space_Grotesk]">Video Consultations</h2>
+                <button className="bg-primary hover:bg-primary-dark text-card px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+                  <Video className="w-4 h-4" /> Schedule New Call
                 </button>
               </div>
-
               <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4">
-                  Confirmed Video Appointments
-                </h3>
+                <h3 className="text-sm font-medium text-text-light mb-4">Confirmed Video Appointments</h3>
                 {loadingVideo ? (
-                  <div className="flex justify-center items-center py-10">
-                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-500"></div>
+                  <div className="flex justify-center py-10">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
                   </div>
                 ) : videoError ? (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                     {videoError}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {videoAppointments.length === 0 ? (
-                      <div className="col-span-3 text-center text-gray-500">
+                      <div className="col-span-3 text-center text-text-light text-sm py-8">
                         No video appointments found
                       </div>
                     ) : (
                       videoAppointments.map((app) => (
                         <div
                           key={app.id}
-                          className={`p-4 rounded-lg border ${app.status === "Confirmed"
-                            ? "border-green-500 bg-green-100"
-                            : app.status === "Pending"
-                              ? "border-yellow-500 bg-yellow-100"
-                              : "border-red-500 bg-red-100"
-                            }`}
+                          className="bg-surface-alt rounded-xl border border-border p-4 hover:shadow-md transition-all"
                         >
-                          <h4 className="font-semibold">{app.patientName}</h4>
-                          <p className="text-sm text-gray-600">
-                            {app.appointmentDate}
-                          </p>
-                          <p className="text-sm text-gray-600">{app.time}</p>
-                          <p
-                            className={`text-sm font-medium ${app.status === "Confirmed"
-                              ? "text-green-700"
-                              : app.status === "Pending"
-                                ? "text-yellow-700"
-                                : "text-red-700"
-                              }`}
-                          >
-                            {app.status}
-                          </p>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                              <User className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-text">{app.patientName}</h4>
+                              <p className="text-xs text-text-light">{app.appointmentDate}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-text-light">{app.time}</span>
+                            <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${statusBadge(app.status)}`}>
+                              {app.status}
+                            </span>
+                          </div>
                         </div>
                       ))
                     )}
@@ -920,113 +665,66 @@ const DocDash = () => {
           {/* Analytics Tab */}
           {activeTab === "analytics" && (
             <div>
-              {/* Analytics content goes here */}
-              <h2 className="text-xl font-semibold">Analytics</h2>
+              <h2 className="text-base font-semibold text-text font-[Space_Grotesk]">Analytics</h2>
             </div>
           )}
         </div>
       </div>
+
       {/* Appointment Details Modal */}
       {isModalOpen && selectedAppointment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div
-            className="bg-[#1a1c23] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all scale-100 opacity-100"
-            role="dialog"
-            aria-modal="true"
-          >
-            {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-white/10">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/40 backdrop-blur-sm p-4">
+          <div className="bg-card border border-border rounded-xl shadow-xl w-full max-w-lg" role="dialog" aria-modal="true">
+            <div className="flex justify-between items-center p-5 border-b border-border">
+              <h3 className="text-base font-semibold text-text font-[Space_Grotesk] flex items-center gap-2">
                 <User className="w-5 h-5 text-primary" />
                 Appointment Details
               </h3>
-              <button
-                onClick={closeAppointmentModal}
-                className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-2 transition-colors"
-                aria-label="Close modal"
-              >
+              <button onClick={closeAppointmentModal} className="text-muted hover:text-text hover:bg-surface-alt rounded-full p-2 transition-colors" aria-label="Close modal">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
-                    Patient Name
-                  </p>
-                  <p className="text-white font-medium truncate">
-                    {selectedAppointment.patientName}
-                  </p>
+            <div className="p-5 flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-surface-alt p-3 rounded-lg">
+                  <p className="text-xs text-text-light uppercase font-medium mb-1">Patient Name</p>
+                  <p className="text-sm text-text font-medium truncate">{selectedAppointment.patientName}</p>
                 </div>
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
-                    Student ID
-                  </p>
-                  <p className="text-white font-medium truncate">
-                    {selectedAppointment.studentId}
-                  </p>
+                <div className="bg-surface-alt p-3 rounded-lg">
+                  <p className="text-xs text-text-light uppercase font-medium mb-1">Student ID</p>
+                  <p className="text-sm text-text font-medium truncate">{selectedAppointment.studentId}</p>
                 </div>
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
-                    Date
-                  </p>
-                  <p className="text-white font-medium">
-                    {selectedAppointment.appointmentDate}
-                  </p>
+                <div className="bg-surface-alt p-3 rounded-lg">
+                  <p className="text-xs text-text-light uppercase font-medium mb-1">Date</p>
+                  <p className="text-sm text-text font-medium">{selectedAppointment.appointmentDate}</p>
                 </div>
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <p className="text-xs text-gray-400 uppercase font-semibold mb-1">
-                    Time
-                  </p>
-                  <p className="text-white font-medium">
-                    {selectedAppointment.timeFrom} - {selectedAppointment.timeTo}
-                  </p>
+                <div className="bg-surface-alt p-3 rounded-lg">
+                  <p className="text-xs text-text-light uppercase font-medium mb-1">Time</p>
+                  <p className="text-sm text-text font-medium">{selectedAppointment.timeFrom} - {selectedAppointment.timeTo}</p>
                 </div>
               </div>
 
-              <div className="bg-white/5 p-4 rounded-lg border border-white/5">
-                <p className="text-xs text-gray-400 uppercase font-semibold mb-2">
-                  Reason for Visit
-                </p>
-                <p className="text-white/90 text-sm leading-relaxed">
-                  {selectedAppointment.reason}
-                </p>
+              <div className="bg-surface-alt p-4 rounded-lg">
+                <p className="text-xs text-text-light uppercase font-medium mb-1">Reason for Visit</p>
+                <p className="text-sm text-text leading-relaxed">{selectedAppointment.reason}</p>
               </div>
 
-              <div className="bg-white/5 p-4 rounded-lg border border-white/5">
-                <p className="text-xs text-gray-400 uppercase font-semibold mb-2">
-                  Contact Email
-                </p>
-                <p className="text-white/90 text-sm leading-relaxed">
-                  {selectedAppointment.studentEmail}
-                </p>
+              <div className="bg-surface-alt p-4 rounded-lg">
+                <p className="text-xs text-text-light uppercase font-medium mb-1">Contact Email</p>
+                <p className="text-sm text-text">{selectedAppointment.studentEmail}</p>
               </div>
 
-              <div className="flex items-center justify-between bg-white/5 p-3 rounded-lg border border-white/5">
-                <span className="text-gray-400 text-sm font-medium">
-                  Current Status
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${selectedAppointment.status === "Confirmed"
-                    ? "bg-green-500/20 text-green-400"
-                    : selectedAppointment.status === "Cancelled"
-                      ? "bg-red-500/20 text-red-400"
-                      : "bg-yellow-500/20 text-yellow-400"
-                    }`}
-                >
+              <div className="flex items-center justify-between bg-surface-alt p-3 rounded-lg">
+                <span className="text-sm text-text-light font-medium">Status</span>
+                <span className={`px-2.5 py-0.5 text-xs font-bold uppercase rounded-full ${statusBadge(selectedAppointment.status)}`}>
                   {selectedAppointment.status}
                 </span>
               </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-white/5 rounded-b-2xl">
-              <button
-                onClick={closeAppointmentModal}
-                className="px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition-all duration-200"
-              >
+            <div className="p-5 border-t border-border flex justify-end">
+              <button onClick={closeAppointmentModal} className="px-5 py-2 rounded-lg bg-surface-alt hover:bg-border text-text text-sm font-medium transition-colors">
                 Close
               </button>
             </div>

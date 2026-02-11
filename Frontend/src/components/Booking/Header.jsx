@@ -1,88 +1,77 @@
 import React from "react";
 import { motion } from "motion/react";
-import { CalendarCheck, Clock, HeartPulse, Stethoscope } from "lucide-react";
+import { CalendarCheck, Clock, HeartPulse } from "lucide-react";
 
 const Header = () => {
   return (
-    <section className="flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 py-8 sm:py-12 md:py-16 bg-dark overflow-hidden">
-      <div className="flex flex-col lg:flex-row items-center max-w-6xl w-full lg:gap-16 xl:gap-24">
+    <section className="flex justify-center px-4 sm:px-6 md:px-12 lg:px-24 pt-24 pb-8">
+      <div className="flex flex-col lg:flex-row items-center max-w-6xl w-full lg:gap-16">
         {/* Text Content */}
-        <div className="lg:w-1/2 text-left z-10">
+        <div className="lg:w-1/2 text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
+          >
+            <CalendarCheck className="w-4 h-4" />
+            Appointment Booking
+          </motion.div>
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-primary text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-thin mb-4 sm:mb-6 leading-snug lg:leading-tight"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-3xl sm:text-4xl font-bold text-text font-[Space_Grotesk] mb-4 leading-snug"
           >
-            Book. Confirm. Stay Healthy
+            Book. Confirm. Stay Healthy.
           </motion.h1>
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-gray-300 text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 leading-relaxed lg:leading-loose"
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-text-light text-base leading-relaxed max-w-md"
           >
-            Schedule doctor appointments in seconds – hassle-free booking, instant confirmations, and seamless healthcare access with Health Vault!
+            Schedule doctor appointments in seconds - hassle-free booking,
+            instant confirmations, and seamless healthcare access.
           </motion.p>
         </div>
 
-        {/* Animated Icon Composition */}
-        <div className="lg:w-1/2 flex justify-center mt-8 lg:mt-0 relative">
-          <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96">
-            {/* Background Glow */}
-            <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full" />
+        {/* Illustration */}
+        <div className="lg:w-1/2 flex justify-center mt-8 lg:mt-0">
+          <div className="relative w-56 h-56 sm:w-64 sm:h-64">
+            <div className="absolute inset-0 bg-primary/5 rounded-3xl" />
 
-            {/* Central Calendar Icon */}
             <motion.div
-              animate={{
-                y: [0, -15, 0],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="absolute inset-0 flex items-center justify-center z-10"
             >
-              <div className="bg-surface/80 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl shadow-primary/20 relative">
-                <CalendarCheck size={100} className="text-primary" />
-                {/* Checkmark Animation */}
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: [0, 1.2, 1], opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 1, repeat: Infinity, repeatDelay: 3 }}
-                  className="absolute -top-2 -right-2 bg-green-500 rounded-full p-2 shadow-lg"
-                >
-                  <div className="w-4 h-4 bg-white rounded-full" />
-                </motion.div>
+              <div className="bg-card p-6 rounded-2xl border border-border shadow-lg">
+                <CalendarCheck size={48} className="text-primary" />
+                <p className="mt-2 text-xs font-medium text-text text-center">Booked</p>
               </div>
             </motion.div>
 
-            {/* Orbiting Elements */}
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0"
+              animate={{ y: [-4, 4, -4] }}
+              transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+              className="absolute top-2 right-2"
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-8">
-                <div className="bg-surface/90 p-3 rounded-xl border border-white/10 shadow-lg transform -rotate-12">
-                  <Clock size={32} className="text-secondary" />
-                </div>
-              </div>
-              <div className="absolute bottom-12 left-12">
-                <div className="bg-surface/90 p-3 rounded-xl border border-white/10 shadow-lg transform rotate-12">
-                  <Stethoscope size={32} className="text-accent" />
-                </div>
+              <div className="bg-card p-3 rounded-xl border border-border shadow-md">
+                <Clock size={20} className="text-secondary" />
               </div>
             </motion.div>
 
-            {/* Heartbeat Animation */}
             <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 0.5 }}
-              className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 bg-surface/90 p-3 rounded-full border border-white/10 shadow-lg"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="absolute bottom-4 left-4"
             >
-              <HeartPulse size={28} className="text-red-500" />
+              <div className="bg-red-50 p-2.5 rounded-full border border-red-100">
+                <HeartPulse size={18} className="text-red-500" />
+              </div>
             </motion.div>
           </div>
         </div>

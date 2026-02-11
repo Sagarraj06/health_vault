@@ -4,6 +4,7 @@ import { FiMenu, FiX, FiArrowLeft } from "react-icons/fi";
 import { UserContext } from "../../context/UserContext";
 import { api } from "../../axios.config.js";
 import Notibell from "../Noti/Notibell";
+import { Activity } from "lucide-react";
 
 const Navbar = React.memo(() => {
   const { isLoggedIn, user, logout, setUser } = useContext(UserContext);
@@ -15,39 +16,20 @@ const Navbar = React.memo(() => {
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  // Scroll handling for dynamic navbar
   React.useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
-      // Always show navbar at the top
       if (currentScrollY < 10) {
         setVisible(true);
         setLastScrollY(currentScrollY);
         return;
       }
-
-      // Add a small threshold to prevent jitter
-      if (Math.abs(currentScrollY - lastScrollY) < 10) {
-        return;
-      }
-
-      if (currentScrollY > lastScrollY) {
-        // Scrolling down
-        setVisible(false);
-      } else {
-        // Scrolling up
-        setVisible(true);
-      }
-
+      if (Math.abs(currentScrollY - lastScrollY) < 10) return;
+      setVisible(currentScrollY <= lastScrollY);
       setLastScrollY(currentScrollY);
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
   const handleProfileClick = () => {
@@ -68,114 +50,166 @@ const Navbar = React.memo(() => {
     }
   };
 
-  const NavLink = ({ to, children }) => (
-    <Link
-      to={to}
-      className="relative px-3 py-2 text-gray-300 hover:text-primary transition-colors duration-300 group"
-    >
-      {children}
-      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-    </Link>
-  );
+  const NavLink = ({ to, children }) => {
+    const isActive = location.pathname === to;
+    return (
+      <Link
+        to={to}
+        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
+          isActive
+            ? "bg-primary/10 text-primary"
+            : "text-text-light hover:text-text hover:bg-surface-alt"
+        }`}
+      >
+        {children}
+      </Link>
+    );
+  };
 
   return (
-    <nav className={`fixed w-full z-50 top-0 left-0 px-6 py-4 glass border-b border-white/10 transition-transform duration-300 ${visible ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Logo and Back Button Container */}
-        <div className="flex items-center space-x-4">
-          {/* Back Button */}
-          {location.pathname !== '/' && (
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 rounded-full text-white/70 hover:text-primary hover:bg-white/10 transition-all duration-300 group"
-              aria-label="Go Back"
-            >
-              <FiArrowLeft className="text-xl group-hover:-translate-x-1 transition-transform" />
-            </button>
-          )}
-
-          {/* Logo */}
-          <div className="flex items-center space-x-2 group cursor-pointer" onClick={() => navigate('/')}>
-            <span className="text-primary text-3xl font-bold animate-pulse-slow">✦</span>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary group-hover:scale-105 transition-transform duration-300">
-              HealthVault
-            </span>
-          </div>
-        </div>
-
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-6 text-lg font-medium">
-          <li><NavLink to="/">Home</NavLink></li>
-          <li><NavLink to="/ai-bot">AI Bot</NavLink></li>
-          <li><NavLink to="/contact">Certificates</NavLink></li>
-          <li><NavLink to="/appointment">Appointment</NavLink></li>
-          <li><NavLink to="/video-call">Video Call</NavLink></li>
-        </ul>
-
-        {/* Auth Buttons */}
-        <div className="hidden md:flex items-center space-x-4">
-          {isLoggedIn ? (
-            <div className="flex items-center space-x-4">
-              <Notibell />
-              <div
-                onClick={handleProfileClick}
-                className="cursor-pointer w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex justify-center items-center text-white font-bold shadow-lg hover:shadow-primary/50 transition-all duration-300 transform hover:scale-110"
-              >
-                {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-              </div>
+    <nav
+      className={`fixed w-full z-50 top-0 left-0 bg-card/80 backdrop-blur-md border-b border-border transition-transform duration-300 ${
+        visible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Left: Back + Logo */}
+          <div className="flex items-center gap-3">
+            {location.pathname !== "/" && (
               <button
-                onClick={handleLogout}
-                className="px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-dark font-bold transition-all duration-300"
+                onClick={() => navigate(-1)}
+                className="p-2 rounded-lg text-text-light hover:text-primary hover:bg-primary/10 transition-all duration-200"
+                aria-label="Go Back"
               >
-                Logout
+                <FiArrowLeft className="text-lg" />
               </button>
+            )}
+            <div
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => navigate("/")}
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Activity className="w-5 h-5 text-card" />
+              </div>
+              <span className="text-xl font-bold text-text font-[Space_Grotesk]">
+                HealthVault
+              </span>
             </div>
-          ) : (
-            <div className="flex space-x-3">
-              <Link to="/signup">
-                <button className="px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-dark font-bold transition-all duration-300">
-                  Sign Up
-                </button>
-              </Link>
-              <Link to="/login">
-                <button className="px-5 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-lg hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105">
-                  Login
-                </button>
-              </Link>
-            </div>
-          )}
-        </div>
+          </div>
 
-        {/* Mobile Toggle */}
-        <div className="md:hidden flex items-center space-x-4">
-          <button onClick={toggleMenu} className="text-3xl text-white hover:text-primary transition-colors">
-            {isOpen ? <FiX /> : <FiMenu />}
-          </button>
+          {/* Center: Nav Links */}
+          <div className="hidden md:flex items-center gap-1">
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/ai-bot">AI Bot</NavLink>
+            <NavLink to="/contact">Certificates</NavLink>
+            <NavLink to="/appointment">Appointment</NavLink>
+            <NavLink to="/video-call">Video Call</NavLink>
+          </div>
+
+          {/* Right: Auth */}
+          <div className="hidden md:flex items-center gap-3">
+            {isLoggedIn ? (
+              <>
+                <Notibell />
+                <button
+                  onClick={handleProfileClick}
+                  className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-card text-sm font-semibold hover:bg-primary-dark transition-colors"
+                >
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 text-sm font-medium text-text-light border border-border rounded-lg hover:bg-surface-alt transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/signup">
+                  <button className="px-4 py-2 text-sm font-medium text-text-light border border-border rounded-lg hover:bg-surface-alt transition-colors">
+                    Sign Up
+                  </button>
+                </Link>
+                <Link to="/login">
+                  <button className="px-4 py-2 text-sm font-medium text-card bg-primary rounded-lg hover:bg-primary-dark transition-colors shadow-sm">
+                    Login
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Toggle */}
+          <div className="md:hidden flex items-center gap-3">
+            {isLoggedIn && <Notibell />}
+            <button
+              onClick={toggleMenu}
+              className="p-2 rounded-lg text-text-light hover:bg-surface-alt transition-colors"
+            >
+              {isOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 w-full bg-dark/95 backdrop-blur-xl border-b border-white/10 p-6 flex flex-col space-y-4 md:hidden animate-fade-in-down">
-          <div onClick={() => { navigate("/"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Home</div>
-          <div onClick={() => { navigate("/ai-bot"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">AI Bot</div>
-          <div onClick={() => { navigate("/contact"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Certificates</div>
-          <div onClick={() => { navigate("/appointment"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Appointment</div>
-          <div onClick={() => { navigate("/video-call"); toggleMenu(); }} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Video Call</div>
+        <div className="md:hidden bg-card border-t border-border animate-fade-in-up">
+          <div className="px-4 py-4 flex flex-col gap-1">
+            {[
+              { to: "/", label: "Home" },
+              { to: "/ai-bot", label: "AI Bot" },
+              { to: "/contact", label: "Certificates" },
+              { to: "/appointment", label: "Appointment" },
+              { to: "/video-call", label: "Video Call" },
+            ].map((item) => (
+              <button
+                key={item.to}
+                onClick={() => { navigate(item.to); toggleMenu(); }}
+                className={`text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  location.pathname === item.to
+                    ? "bg-primary/10 text-primary"
+                    : "text-text-light hover:bg-surface-alt hover:text-text"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
 
-          <div className="h-px bg-white/10 my-2"></div>
+            <div className="h-px bg-border my-2" />
 
-          {isLoggedIn ? (
-            <div className="flex flex-col space-y-4">
-              <div onClick={handleProfileClick} className="text-xl text-gray-300 hover:text-primary cursor-pointer">Profile</div>
-              <button onClick={handleLogout} className="w-full py-3 rounded-lg border border-primary text-primary font-bold">Logout</button>
-            </div>
-          ) : (
-            <div className="flex flex-col space-y-3">
-              <Link to="/signup" onClick={toggleMenu} className="w-full py-3 rounded-lg border border-primary text-primary font-bold text-center">Sign Up</Link>
-              <Link to="/login" onClick={toggleMenu} className="w-full py-3 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold text-center">Login</Link>
-            </div>
-          )}
+            {isLoggedIn ? (
+              <>
+                <button
+                  onClick={() => { handleProfileClick(); toggleMenu(); }}
+                  className="text-left px-4 py-3 rounded-lg text-sm font-medium text-text-light hover:bg-surface-alt hover:text-text transition-colors"
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="mx-4 mt-2 py-2.5 rounded-lg border border-border text-sm font-medium text-text-light text-center hover:bg-surface-alt transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-2 px-4 mt-2">
+                <Link to="/signup" onClick={toggleMenu}>
+                  <button className="w-full py-2.5 rounded-lg border border-border text-sm font-medium text-text-light text-center hover:bg-surface-alt transition-colors">
+                    Sign Up
+                  </button>
+                </Link>
+                <Link to="/login" onClick={toggleMenu}>
+                  <button className="w-full py-2.5 rounded-lg bg-primary text-card text-sm font-medium text-center hover:bg-primary-dark transition-colors">
+                    Login
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </nav>
